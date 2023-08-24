@@ -1,0 +1,7 @@
+Package: fxpixel
+Version: 1.0.{build}
+Architecture: armhf
+Maintainer: Dan Esparza <esparza.dan@gmail.com>
+Installed-Size: 4500
+Homepage: https://github.com/danesparza/fxpixel
+Description: REST service for RGB(W) LED lighting effects on demand from Raspberry Pi

@@ -1,0 +1,6 @@
+server:
+  port: 3050
+  allowed-origins: "*"
+datastore:
+  system: /var/lib/fxpixel/db/fxpixel.db
+  migrationsource: /var/lib/fxpixel/scripts/sqlite/migrations

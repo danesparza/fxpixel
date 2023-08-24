@@ -1,0 +1,3 @@
+#!/bin/sh
+systemctl enable fxpixel.service
+systemctl start fxpixel.service

@@ -1,0 +1,3 @@
+#!/bin/sh
+systemctl stop fxpixel.service
+systemctl disable fxpixel.service
