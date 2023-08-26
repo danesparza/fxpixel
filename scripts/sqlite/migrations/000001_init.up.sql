@@ -1,6 +1,7 @@
 create table system_config
 (
-    gpio integer
+    gpio integer not null,
+    leds integer not null
 );
 
 create table timeline
