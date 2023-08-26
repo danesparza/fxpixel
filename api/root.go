@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/leds"
 
 	"github.com/danesparza/fxpixel/version"
@@ -12,7 +13,10 @@ import (
 
 // Service encapsulates API service operations
 type Service struct {
-	//DB        data.AppDataService
+	// DB is the system datastore reference
+	DB data.AppDataService
+
+	// StartTime is the service start time.  We can calculate uptime based on this
 	StartTime time.Time
 
 	// PlayTimeline signals a timeline should be played
@@ -23,11 +27,6 @@ type Service struct {
 
 	//	StopAllTimelines signals all timelines should stop playing
 	StopAllTimelines chan bool
-}
-
-// PlayAudioRequest represents a request to play an audio endpoint
-type PlayAudioRequest struct {
-	Endpoint string `json:"endpoint"`
 }
 
 // UpdateTagsRequest represents a request to update tags for a file

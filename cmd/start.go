@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/danesparza/fxpixel/api"
 	_ "github.com/danesparza/fxpixel/docs" // swagger docs location
+	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/leds"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -37,13 +38,31 @@ func start(cmd *cobra.Command, args []string) {
 		log.Debug().Msg("No config file found")
 	}
 
+	systemdb := viper.GetString("datastore.system")
+
+	//	Emit what we know:
+	log.Info().
+		Str("systemdb", systemdb).
+		Msg("Starting up")
+
+	//	Init SQLite
+	db, err := data.InitSqlite(systemdb)
+	if err != nil {
+		log.Err(err).Msg("Problem trying to open the system database")
+		return
+	}
+	defer db.Close()
+
+	//	Init the AppDataService
+	appdata := data.NewAppDataService(db)
+
 	//	Create an api service object
 	apiService := api.Service{
 		PlayTimeline:     make(chan leds.PlayTimelineRequest),
 		StopTimeline:     make(chan string),
 		StopAllTimelines: make(chan bool),
-		//DB:           appdata,
-		StartTime: time.Now(),
+		DB:               appdata,
+		StartTime:        time.Now(),
 	}
 
 	//	Trap program exit appropriately
