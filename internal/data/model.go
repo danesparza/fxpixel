@@ -17,7 +17,7 @@ type TimelineStep struct {
 	Type     string `json:"type"`                // Timeline frame type (effect/sleep/trigger/loop)
 	Leds     string `json:"leds,omitempty"`      // Leds to use for the scene (optional) If not set and is required for the type, defaults to entire strip
 	Time     int    `json:"time,omitempty"`      // Time (in milliseconds).  Some things (like trigger) don't require time
-	MetaInfo string `json:"meta-info,omitempty"` // Additional information required for specific types
+	MetaInfo any    `json:"meta-info,omitempty"` // Additional information required for specific types
 }
 
 type MetaColor struct {

@@ -4,7 +4,6 @@
     "created": "",
     "name": "Lightning loop with thunder trigger",
     "gpio": 18, /* The GPIO pin to use for this timeline.  Optional.  If not set, uses the default */
-
     /* Each element in the array represents an individual step in the timeline */
     "steps": [
         {
@@ -28,12 +27,15 @@
             "meta-info": {
                 "verb": "GET", /* Optional.  Defaults to 'GET' */
                 "url": "http://somelocalmachine:3000/v1/api/play",
-                "headers": ["", ""] /* Optional list of HTTP headers */
+                "headers": [
+                    "",
+                    ""
+                ] /* Optional list of HTTP headers */
             }
         },
         {
             "type": "randomsleep",
-            "time": 30000 
+            "time": 30000
         },
         {
             "type": "loop" /* Loop will start the whole thing over again, until stopped */

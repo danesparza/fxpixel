@@ -4,7 +4,6 @@
     "created": "",
     "name": "Simple fade in and out",
     "gpio": 18, /* The GPIO pin to use for this timeline.  Optional.  If not set, uses the default */
-
     /* Each element in the array represents an individual step in the timeline */
     "steps": [
         {
@@ -25,7 +24,7 @@
         },
         {
             "type": "fade",
-            "time": 1000, 
+            "time": 1000,
             "meta-info": {
                 "color": {
                     "R": 0,
