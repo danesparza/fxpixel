@@ -1,0 +1,42 @@
+{
+    "id": "123abc",
+    "enabled": true,
+    "created": "",
+    "name": "Lightning loop with thunder trigger",
+    "gpio": 18, /* The GPIO pin to use for this timeline.  Optional.  If not set, uses the default */
+
+    /* Each element in the array represents an individual step in the timeline */
+    "steps": [
+        {
+            "type": "lightning",
+            "leds": "0-30", /* Leds to use for the step.  Optional.  Defaults to entire strip if needed */
+            "time": 1000, /* Time (in ms) to take to execute this step */
+            "meta-info": {
+                "bursts": 3, /* Optional: For random: up to this number of bursts.  For fixed:  This many bursts */
+                "burst-type": "fixed", /* Optional: fixed/random - defaults to random */
+                "burst-spacing": 100, /* Optional: Maximum time (in ms) to space the bursts */
+                "burst-length": 300, /* Optional: Maximum time (in ms) to show each burst */
+                "burst-brightness": 128 /* Optional: Brightness of the white light for each burst */
+            }
+        },
+        {
+            "type": "randomsleep",
+            "time": 8000 /* For randomsleep, this is 'sleep up to this amount of time (in ms)' */
+        },
+        {
+            "type": "trigger", /* Trigger thunder from fxAudio */
+            "meta-info": {
+                "verb": "GET", /* Optional.  Defaults to 'GET' */
+                "url": "http://somelocalmachine:3000/v1/api/play",
+                "headers": ["", ""] /* Optional list of HTTP headers */
+            }
+        },
+        {
+            "type": "randomsleep",
+            "time": 30000 
+        },
+        {
+            "type": "loop" /* Loop will start the whole thing over again, until stopped */
+        }
+    ]
+}

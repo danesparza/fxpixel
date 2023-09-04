@@ -15,37 +15,37 @@ create table timeline
     gpio    integer
 );
 
-create table timeline_frame_type
+create table timeline_step_type
 (
     id         integer
-        constraint timeline_frame_type_pk
+        constraint timeline_step_type_pk
             primary key autoincrement,
-    frame_type TEXT not null
+    step_type TEXT not null
 );
 
-create table timeline_scene_type
+create table timeline_step_effect_type
 (
     id         integer
-        constraint timeline_scene_type_pk
+        constraint timeline_step_effect_type_pk
             primary key autoincrement,
-    scene_type TEXT not null
+    effect_type TEXT not null
 );
 
-create table timeline_frame
+create table timeline_step
 (
     id            TEXT    not null
-        constraint timeline_frame_pk
+        constraint timeline_step_pk
             primary key,
     timeline_id   TEXT    not null
-        constraint timeline_frame_timeline_id_fk
+        constraint timeline_step_timeline_id_fk
             references timeline,
-    frame_type_id integer not null
-        constraint timeline_frame_timeline_frame_type_id_fk
-            references timeline_frame_type,
-    scene_type_id integer
-        constraint timeline_frame_timeline_scene_type_id_fk
-            references timeline_scene_type,
+    step_type_id integer not null
+        constraint timeline_step_timeline_step_type_id_fk
+            references timeline_step_type,
+    effect_type_id integer
+        constraint timeline_step_timeline_step_effect_type_id_fk
+            references timeline_step_effect_type,
     led_range     TEXT    not null,
-    scene_meta    TEXT
+    step_meta    TEXT
 );
 

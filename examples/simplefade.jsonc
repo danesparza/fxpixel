@@ -1,0 +1,39 @@
+{
+    "id": "123abc",
+    "enabled": true,
+    "created": "",
+    "name": "Simple fade in and out",
+    "gpio": 18, /* The GPIO pin to use for this timeline.  Optional.  If not set, uses the default */
+
+    /* Each element in the array represents an individual step in the timeline */
+    "steps": [
+        {
+            "type": "fade",
+            "time": 1000, /* Time (in ms) to take to execute this step */
+            "meta-info": { /* Meta info for fade includes the color to fade to */
+                "color": {
+                    "R": 128,
+                    "G": 0,
+                    "B": 128,
+                    "W": 0
+                }
+            }
+        },
+        {
+            "type": "sleep",
+            "time": 10000
+        },
+        {
+            "type": "fade",
+            "time": 1000, 
+            "meta-info": {
+                "color": {
+                    "R": 0,
+                    "G": 0,
+                    "B": 0,
+                    "W": 0
+                }
+            }
+        },
+    ]
+}
