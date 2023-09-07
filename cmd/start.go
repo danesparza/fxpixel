@@ -93,23 +93,23 @@ func start(cmd *cobra.Command, args []string) {
 	}))
 
 	r.Route("/v1", func(r chi.Router) {
-		//	File management
-		r.Put("/audio", apiService.ShowUI)
-		r.Get("/audio", apiService.ShowUI)
-		r.Delete("/audio/{id}", apiService.ShowUI)
-		r.Post("/audio/{id}", apiService.ShowUI)
 
-		//	Play audio
-		r.Post("/audio/play", apiService.ShowUI)
-		r.Post("/audio/play/{id}", apiService.ShowUI)
-		r.Post("/audio/play/random/{tag}", apiService.ShowUI)
-		r.Post("/audio/stream", apiService.ShowUI)
-		r.Post("/audio/loop/{id}/{loopTimes}", apiService.ShowUI)
+		//	Timeline management
+		r.Route("/timelines", func(r chi.Router) {
+			r.Put("/", apiService.ShowUI)          //	Add a timeline
+			r.Get("/", apiService.GetAllTimelines) // Get all timelines
+			r.Delete("/{id}", apiService.ShowUI)   // Delete a timeline
+			r.Post("/{id}", apiService.ShowUI)     // Update a timeline
+		})
 
-		//	Stop audio
-		r.Post("/audio/stop", apiService.ShowUI)
-		r.Post("/audio/stop/{id}", apiService.ShowUI)
-
+		//	Run or stop a timeline
+		r.Route("/timeline", func(r chi.Router) {
+			r.Post("/run", apiService.ShowUI)              // Run a random timeline
+			r.Post("/run/{id}", apiService.ShowUI)         // Run a specific timeline
+			r.Post("/run/random/{tag}", apiService.ShowUI) // Run a random timeline in a tag
+			r.Post("/stop", apiService.ShowUI)             // Stop all running timelines
+			r.Post("/stop/{id}", apiService.ShowUI)        // Stop a specific timeline
+		})
 	})
 
 	//	SWAGGER

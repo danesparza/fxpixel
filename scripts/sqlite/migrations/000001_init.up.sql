@@ -45,7 +45,13 @@ create table timeline_step
     effect_type_id integer
         constraint timeline_step_timeline_step_effect_type_id_fk
             references timeline_step_effect_type,
-    led_range     TEXT    not null,
-    step_meta    TEXT
+    led_range     TEXT, /* Null means use the entire strip */
+    step_time integer, /* Time (in ms) to execute the step */
+    step_meta    TEXT,
+    step_number    integer not null,
+
+    /* Each step number (ordinal) in a timeline must be unique */
+    UNIQUE(timeline_id,step_number)
+
 );
 

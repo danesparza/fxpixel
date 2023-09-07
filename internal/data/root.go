@@ -16,7 +16,7 @@ import (
 )
 
 type AppDataService interface {
-	AddTimeline(ctx context.Context, name, description string) (Timeline, error)
+	AddTimeline(ctx context.Context, source string) (Timeline, error)
 	GetTimeline(ctx context.Context, id string) (Timeline, error)
 	GetAllTimelines(ctx context.Context) ([]Timeline, error)
 	GetAllTimelinesWithTag(ctx context.Context, tag string) ([]Timeline, error)

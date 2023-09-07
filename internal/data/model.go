@@ -2,6 +2,12 @@ package data
 
 import "time"
 
+// SystemConfig represents the system configuration information
+type SystemConfig struct {
+	GPIO int `json:"gpio"`
+	LEDs int `json:"leds"`
+}
+
 // Timeline represents a series of event frames to be shown in order
 type Timeline struct {
 	ID      string         `json:"id"`             // Unique Timeline ID
@@ -14,10 +20,12 @@ type Timeline struct {
 
 // TimelineStep represents a single step in a timeline
 type TimelineStep struct {
+	ID       string `json:"id"`                  // The timeline step id
 	Type     string `json:"type"`                // Timeline frame type (effect/sleep/trigger/loop)
 	Leds     string `json:"leds,omitempty"`      // Leds to use for the scene (optional) If not set and is required for the type, defaults to entire strip
 	Time     int    `json:"time,omitempty"`      // Time (in milliseconds).  Some things (like trigger) don't require time
 	MetaInfo any    `json:"meta-info,omitempty"` // Additional information required for specific types
+	Number   int    `json:"number"`              // The step number (ordinal position in the timeline)
 }
 
 type MetaColor struct {

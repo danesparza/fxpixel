@@ -58,7 +58,7 @@ func sendErrorResponse(rw http.ResponseWriter, err error, code int) {
 }
 
 // ShowUI redirects to the /ui/ url path
-func (s Service) ShowUI(rw http.ResponseWriter, req *http.Request) {
+func (service Service) ShowUI(rw http.ResponseWriter, req *http.Request) {
 	// http.Redirect(rw, req, "/ui/", 301)
 	fmt.Fprintf(rw, "Hello, world - UI")
 }
