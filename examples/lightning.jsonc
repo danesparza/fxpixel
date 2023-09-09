@@ -7,7 +7,8 @@
     /* Each element in the array represents an individual step in the timeline */
     "steps": [
         {
-            "type": "lightning",
+            "type": "effect",
+            "effect": "lightning",
             "leds": "0-30", /* Leds to use for the step.  Optional.  Defaults to entire strip if needed */
             "time": 1000, /* Time (in ms) to take to execute this step */
             "meta-info": {

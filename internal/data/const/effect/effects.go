@@ -1,7 +1,11 @@
 package effect
 
+type EffectType int
+
+//go:generate stringer -type=EffectType
 const (
-	Solid = iota + 1
+	Unknown EffectType = iota
+	Solid
 	Fade
 	Gradient
 	Sequence

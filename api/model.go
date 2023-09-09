@@ -1,7 +1,6 @@
-package data
+package api
 
 import (
-	"database/sql"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	"github.com/danesparza/fxpixel/internal/data/const/step"
 )
@@ -18,7 +17,7 @@ type Timeline struct {
 	Enabled bool           `json:"enabled"`        // Timeline enabled or not
 	Created string         `json:"created"`        // Timeline create time
 	Name    string         `json:"name"`           // Timeline name
-	GPIO    sql.NullInt32  `json:"gpio,omitempty"` // The GPIO device to play the timeline on.  Optional.  If not set, uses the default
+	GPIO    int            `json:"gpio,omitempty"` // The GPIO device to play the timeline on.  Optional.  If not set, uses the default
 	Steps   []TimelineStep `json:"steps"`          // Steps for the timeline
 	Tags    []string       `json:"tags"`           // List of Tags to associate with this timeline
 }
@@ -28,8 +27,8 @@ type TimelineStep struct {
 	ID       string            `json:"id"`                  // The timeline step id
 	Type     step.StepType     `json:"type"`                // Timeline frame type (effect/sleep/trigger/loop)
 	Effect   effect.EffectType `json:"effect,omitempty"`    // The Effect type (if Type=effect)
-	Leds     sql.NullString    `json:"leds,omitempty"`      // Leds to use for the scene (optional) If not set and is required for the type, defaults to entire strip
-	Time     sql.NullInt32     `json:"time,omitempty"`      // Time (in milliseconds).  Some things (like trigger) don't require time
+	Leds     string            `json:"leds,omitempty"`      // Leds to use for the scene (optional) If not set and is required for the type, defaults to entire strip
+	Time     int               `json:"time,omitempty"`      // Time (in milliseconds).  Some things (like trigger) don't require time
 	MetaInfo any               `json:"meta-info,omitempty"` // Additional information required for specific types
 	Number   int               `json:"number"`              // The step number (ordinal position in the timeline)
 }

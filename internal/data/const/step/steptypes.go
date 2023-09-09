@@ -1,7 +1,10 @@
 package step
 
+type StepType int
+
+//go:generate stringer -type=StepType
 const (
-	Effect = iota + 1
+	Effect StepType = iota + 1
 	Sleep
 	RandomSleep
 	Trigger
