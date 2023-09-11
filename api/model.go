@@ -1,10 +1,5 @@
 package api
 
-import (
-	"github.com/danesparza/fxpixel/internal/data/const/effect"
-	"github.com/danesparza/fxpixel/internal/data/const/step"
-)
-
 // SystemConfig represents the system configuration information
 type SystemConfig struct {
 	GPIO int `json:"gpio"`
@@ -24,13 +19,13 @@ type Timeline struct {
 
 // TimelineStep represents a single step in a timeline
 type TimelineStep struct {
-	ID       string            `json:"id"`                  // The timeline step id
-	Type     step.StepType     `json:"type"`                // Timeline frame type (effect/sleep/trigger/loop)
-	Effect   effect.EffectType `json:"effect,omitempty"`    // The Effect type (if Type=effect)
-	Leds     string            `json:"leds,omitempty"`      // Leds to use for the scene (optional) If not set and is required for the type, defaults to entire strip
-	Time     int               `json:"time,omitempty"`      // Time (in milliseconds).  Some things (like trigger) don't require time
-	MetaInfo any               `json:"meta-info,omitempty"` // Additional information required for specific types
-	Number   int               `json:"number"`              // The step number (ordinal position in the timeline)
+	ID       string `json:"id"`                  // The timeline step id
+	Type     string `json:"type"`                // Timeline frame type (effect/sleep/trigger/loop)
+	Effect   string `json:"effect,omitempty"`    // The Effect type (if Type=effect)
+	Leds     string `json:"leds,omitempty"`      // Leds to use for the scene (optional) If not set and is required for the type, defaults to entire strip
+	Time     int    `json:"time,omitempty"`      // Time (in milliseconds).  Some things (like trigger) don't require time
+	MetaInfo any    `json:"meta-info,omitempty"` // Additional information required for specific types
+	Number   int    `json:"number"`              // The step number (ordinal position in the timeline)
 }
 
 type MetaColor struct {

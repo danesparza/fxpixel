@@ -1,12 +1,11 @@
-package data_test
+package api_test
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/danesparza/fxpixel/internal/data"
+	"github.com/danesparza/fxpixel/api"
 	"github.com/sanity-io/litter"
 	"testing"
-	"time"
 )
 
 func TestModelFromJSON(t *testing.T) {
@@ -14,7 +13,7 @@ func TestModelFromJSON(t *testing.T) {
 	tests := []struct {
 		name   string
 		source string
-		want   data.Timeline
+		want   api.Timeline
 	}{
 		{
 			name: "Simple JSON to ?",
@@ -53,24 +52,25 @@ func TestModelFromJSON(t *testing.T) {
             }
         }
     ]}`,
-			want: data.Timeline{
+			want: api.Timeline{
 				ID:      "123abc",
 				Enabled: true,
-				Created: time.Time{},
+				Created: "",
 				Name:    "Simple fade in and out",
-				GPIO:    18,
-				Steps: []data.TimelineStep{
+				Steps: []api.TimelineStep{
 					{
-						Type: "fade",
-						Time: 1000,
+						Type:   "effect",
+						Effect: "fade",
+						Time:   5000,
 					},
 					{
 						Type: "sleep",
 						Time: 10000,
 					},
 					{
-						Type: "fade",
-						Time: 1000,
+						Type:   "effect",
+						Effect: "fade",
+						Time:   1000,
 					},
 				},
 			},
@@ -80,7 +80,7 @@ func TestModelFromJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			//	Unmarshal the JSON
-			out := data.Timeline{}
+			out := api.Timeline{}
 			err := json.Unmarshal([]byte(tt.source), &out)
 			if err != nil {
 				t.Errorf("Problem unmarshalling JSON: %v", err)
@@ -98,7 +98,7 @@ func TestModelFromJSON(t *testing.T) {
 			fmt.Println(string(jsonString))
 
 			// convert json to struct
-			s := data.FadeMeta{}
+			s := api.FadeMeta{}
 			err = json.Unmarshal(jsonString, &s)
 			if err != nil {
 				t.Errorf("Problem unmarshalling meta: %v", err)
