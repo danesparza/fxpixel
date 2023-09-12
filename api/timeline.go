@@ -18,11 +18,18 @@ import (
 func (service Service) GetAllTimelines(rw http.ResponseWriter, req *http.Request) {
 
 	//	Get a list of files
-	retval, err := service.DB.GetAllTimelines(req.Context())
+	dbTimelines, err := service.DB.GetAllTimelines(req.Context())
 	if err != nil {
 		err = fmt.Errorf("error getting a list of timelines: %v", err)
 		sendErrorResponse(rw, err, http.StatusInternalServerError)
 		return
+	}
+
+	//	For each timeline, convert it to the API model:
+	retval := []Timeline{}
+	for _, timeline := range dbTimelines {
+		apiTimeline := TimelineToApi(timeline)
+		retval = append(retval, apiTimeline)
 	}
 
 	//	Construct our response

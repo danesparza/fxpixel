@@ -26,7 +26,7 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 	query := `select
 		tl.id, tl.enabled, tl.created, tl.name, tl.gpio,
 		ts.id, ts.step_type_id, ts.effect_type_id, ts.led_range,
-		ts.step_time, ts.step_number
+		ts.step_time, ts.step_meta, ts.step_number
 	from
 		timeline tl
 		join timeline_step ts
@@ -57,7 +57,7 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 
 		if err := rows.Scan(&item.ID, &item.Enabled, &item.Created, &item.Name, &item.GPIO,
 			&step.ID, &step.Type, &step.Effect, &step.Leds,
-			&step.Time, &step.Number); err != nil {
+			&step.Time, &step.MetaInfo, &step.Number); err != nil {
 			return retval, fmt.Errorf("problem reading into struct: %v", err)
 		}
 

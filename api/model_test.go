@@ -24,7 +24,8 @@ func TestModelFromJSON(t *testing.T) {
     "gpio": 18,
     "steps": [
         {
-            "type": "fade",
+            "type": "effect",
+			"effect": "fade",
             "time": 1000, 
             "meta-info": { 
                 "color": {
@@ -40,7 +41,8 @@ func TestModelFromJSON(t *testing.T) {
             "time": 10000
         },
         {
-            "type": "fade",
+            "type": "effect",
+			"effect": "fade",
             "time": 1000, 
             "meta-info": {
                 "color": {
