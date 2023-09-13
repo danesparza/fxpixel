@@ -1,11 +1,9 @@
 package api
 
 import (
-	"encoding/json"
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	"github.com/danesparza/fxpixel/internal/data/const/step"
-	"github.com/rs/zerolog/log"
 )
 
 // Convert internal data model to api format
@@ -32,11 +30,6 @@ func TimelineToApi(tl data.Timeline) Timeline {
 			Number: item.Number,
 		}
 
-		//	Convert the meta info to a json string:
-		metaInfo, _ := json.Marshal(item.MetaInfo)
-		var jsonString string
-		json.Unmarshal(metaInfo, &jsonString)
-
 		//	... determine the step type
 		switch item.Type {
 		case step.Effect:
@@ -45,37 +38,78 @@ func TimelineToApi(tl data.Timeline) Timeline {
 			case effect.Unknown:
 				//	We don't know what to do here
 			case effect.Solid:
-				em := SolidMeta{}
-				err := json.Unmarshal([]byte(jsonString), &em)
-				if err != nil {
-					log.Err(err).Msg("Problem unmarshalling SolidMeta")
+				md := item.MetaInfo.(data.SolidMeta)
+				newStep.MetaInfo = SolidMeta{
+					Color: MetaColor{
+						R: md.Color.R,
+						G: md.Color.G,
+						B: md.Color.B,
+						W: md.Color.W,
+					},
 				}
-
-				newStep.MetaInfo = em
 			case effect.Fade:
-				em := FadeMeta{}
-				json.Unmarshal([]byte(jsonString), &em)
-				newStep.MetaInfo = em
+				md := item.MetaInfo.(data.FadeMeta)
+				newStep.MetaInfo = FadeMeta{
+					Color: MetaColor{
+						R: md.Color.R,
+						G: md.Color.G,
+						B: md.Color.B,
+						W: md.Color.W,
+					},
+				}
 			case effect.Gradient:
-				em := GradientMeta{}
-				json.Unmarshal([]byte(jsonString), &em)
-				newStep.MetaInfo = em
+				md := item.MetaInfo.(data.GradientMeta)
+				newStep.MetaInfo = GradientMeta{
+					StartColor: MetaColor{
+						R: md.StartColor.R,
+						G: md.StartColor.G,
+						B: md.StartColor.B,
+						W: md.StartColor.W,
+					},
+					EndColor: MetaColor{
+						R: md.EndColor.R,
+						G: md.EndColor.G,
+						B: md.EndColor.B,
+						W: md.EndColor.W,
+					},
+				}
 			case effect.Sequence:
-				em := SequenceMeta{}
-				json.Unmarshal([]byte(jsonString), &em)
-				newStep.MetaInfo = em
+				md := item.MetaInfo.(data.SequenceMeta)
+				//	Copy the sequence
+				sequenceSlice := []MetaColor{}
+				for _, item := range md.Sequence {
+					sequenceItem := MetaColor{
+						R: item.R,
+						G: item.G,
+						B: item.B,
+						W: item.W,
+					}
+					sequenceSlice = append(sequenceSlice, sequenceItem)
+				}
+				newStep.MetaInfo = SequenceMeta{Sequence: sequenceSlice}
 			case effect.Rainbow:
 				//	Don't need to do anything
 			case effect.Zip:
-				em := ZipMeta{}
-				json.Unmarshal([]byte(jsonString), &em)
-				newStep.MetaInfo = em
+				md := item.MetaInfo.(data.ZipMeta)
+				newStep.MetaInfo = ZipMeta{
+					Color: MetaColor{
+						R: md.Color.R,
+						G: md.Color.G,
+						B: md.Color.B,
+						W: md.Color.W,
+					},
+				}
 			case effect.KnightRider:
 				//	Don't need to do anything
 			case effect.Lightning:
-				em := LightningMeta{}
-				json.Unmarshal([]byte(jsonString), &em)
-				newStep.MetaInfo = em
+				md := item.MetaInfo.(data.LightningMeta)
+				newStep.MetaInfo = LightningMeta{
+					Bursts:          md.Bursts,
+					BurstType:       md.BurstType,
+					BurstSpacing:    md.BurstSpacing,
+					BurstLength:     md.BurstLength,
+					BurstBrightness: md.BurstBrightness,
+				}
 			}
 		case step.Sleep:
 		case step.RandomSleep:
