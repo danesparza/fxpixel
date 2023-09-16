@@ -16,7 +16,7 @@ type SystemConfig struct {
 type Timeline struct {
 	ID      string         `json:"id"`             // Unique Timeline ID
 	Enabled bool           `json:"enabled"`        // Timeline enabled or not
-	Created string         `json:"created"`        // Timeline create time
+	Created int64          `json:"created"`        // Timeline create time
 	Name    string         `json:"name"`           // Timeline name
 	GPIO    sql.NullInt32  `json:"gpio,omitempty"` // The GPIO device to play the timeline on.  Optional.  If not set, uses the default
 	Steps   []TimelineStep `json:"steps"`          // Steps for the timeline

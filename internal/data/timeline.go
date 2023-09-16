@@ -6,12 +6,77 @@ import (
 	"fmt"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	"github.com/danesparza/fxpixel/internal/data/const/step"
+	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
+	"time"
 )
 
-func (a appDataService) AddTimeline(ctx context.Context, source string) (Timeline, error) {
-	//TODO implement me
-	panic("implement me")
+func (a appDataService) AddTimeline(ctx context.Context, source Timeline) (Timeline, error) {
+	//	Our return item
+	retval := Timeline{
+		ID:      xid.New().String(), // Generate a new id
+		Enabled: true,
+		Created: time.Now().Unix(),
+		Name:    source.Name,
+		GPIO:    source.GPIO,
+		Steps:   source.Steps,
+		Tags:    source.Tags,
+	}
+
+	// Create a helper function for preparing failure results.
+	fail := func(err error) (Timeline, error) {
+		retval := Timeline{}
+		return retval, fmt.Errorf("AddTimeline: %v", err)
+	}
+
+	// Get a Tx for making transaction requests.
+	tx, err := a.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fail(err)
+	}
+
+	// Defer a rollback in case anything fails.
+	defer tx.Rollback()
+
+	//	Insert into the timeline table
+	query := `insert into timeline(id, enabled, created, name, gpio) 
+				values($1, $2, $3, $4, $5);`
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return retval, err
+	}
+
+	_, err = stmt.ExecContext(ctx, retval.ID, retval.Enabled, retval.Created, retval.Name, retval.GPIO)
+	if err != nil {
+		return retval, fmt.Errorf("problem adding timeline: %v", err)
+	}
+
+	//	Insert each of the steps
+	for stepIndex, stepItem := range retval.Steps {
+		query := `timeline_step(id, timeline_id, step_type_id, effect_type_id, led_range, step_time, step_meta, step_number) 
+				values($1, $2, $3, $4, $5, $6, $7, $8);`
+
+		stmt, err := tx.PrepareContext(ctx, query)
+		if err != nil {
+			return retval, err
+		}
+
+		//	Marshal stepItem.MetaInfo to JSON
+		jsonString, _ := json.Marshal(stepItem.MetaInfo)
+
+		_, err = stmt.ExecContext(ctx, xid.New().String(), retval.ID, stepItem.Type, stepItem.Effect, stepItem.Leds, stepItem.Time, string(jsonString), stepIndex+1)
+		if err != nil {
+			return retval, fmt.Errorf("problem problem adding step: %v", err)
+		}
+	}
+
+	// Commit the transaction.
+	if err = tx.Commit(); err != nil {
+		return fail(err)
+	}
+
+	return retval, nil
 }
 
 func (a appDataService) GetTimeline(ctx context.Context, id string) (Timeline, error) {

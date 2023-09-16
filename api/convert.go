@@ -4,16 +4,19 @@ import (
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	"github.com/danesparza/fxpixel/internal/data/const/step"
+	"time"
 )
 
 // Convert internal data model to api format
 func TimelineToApi(tl data.Timeline) Timeline {
 
+	unixTimeUTC := time.Unix(tl.Created, 0) //gives unix time stamp in utc
+
 	//	Convert the base timeline information
 	retval := Timeline{
 		ID:      tl.ID,
 		Enabled: tl.Enabled,
-		Created: tl.Created,
+		Created: unixTimeUTC.Format(time.RFC3339),
 		Name:    tl.Name,
 		GPIO:    int(tl.GPIO.Int32),
 		Tags:    tl.Tags,
