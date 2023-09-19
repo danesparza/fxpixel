@@ -56,25 +56,31 @@ func (service Service) GetAllTimelines(rw http.ResponseWriter, req *http.Request
 func (service Service) AddTimeline(rw http.ResponseWriter, req *http.Request) {
 
 	//	Parse the body
-
-	//	Get a list of files
-	dbTimelines, err := service.DB.GetAllTimelines(req.Context())
+	request := Timeline{}
+	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		err = fmt.Errorf("error getting a list of timelines: %v", err)
+		err = fmt.Errorf("problem decoding add timeline request: %v", err)
+		sendErrorResponse(rw, err, http.StatusBadRequest)
+		return
+	}
+
+	//	Convert the api request into a data model:
+	newTimeline := ApiToTimeline(request)
+
+	//	Add a timeline
+	dbTimeline, err := service.DB.AddTimeline(req.Context(), newTimeline)
+	if err != nil {
+		err = fmt.Errorf("error adding a timelines: %v", err)
 		sendErrorResponse(rw, err, http.StatusInternalServerError)
 		return
 	}
 
-	//	For each timeline, convert it to the API model:
-	retval := []Timeline{}
-	for _, timeline := range dbTimelines {
-		apiTimeline := TimelineToApi(timeline)
-		retval = append(retval, apiTimeline)
-	}
+	//	Convert the timeline to the API model:
+	retval := TimelineToApi(dbTimeline)
 
 	//	Construct our response
 	response := SystemResponse{
-		Message: fmt.Sprintf("%v timelines(s)", len(retval)),
+		Message: fmt.Sprintf("Timeline added: %v", retval.ID),
 		Data:    retval,
 	}
 

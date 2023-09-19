@@ -1,4 +1,16 @@
 basePath: /v1
+definitions:
+  api.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  api.SystemResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
 info:
   contact: {}
   description: fxPixel LED lighting effects REST service
@@ -7,5 +19,42 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: fxPixel
   version: "1.0"
-paths: {}
+paths:
+  /timelines:
+    get:
+      consumes:
+      - application/json
+      description: List all timelines in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List all timelines in the system
+      tags:
+      - timeline
+    put:
+      consumes:
+      - application/json
+      description: Adds a timeline to the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Adds a timeline to the system
+      tags:
+      - timeline
 swagger: "2.0"

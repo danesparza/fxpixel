@@ -8,13 +8,13 @@ type SystemConfig struct {
 
 // Timeline represents a series of event frames to be shown in order
 type Timeline struct {
-	ID      string         `json:"id"`             // Unique Timeline ID
-	Enabled bool           `json:"enabled"`        // Timeline enabled or not
-	Created string         `json:"created"`        // Timeline create time
-	Name    string         `json:"name"`           // Timeline name
-	GPIO    int            `json:"gpio,omitempty"` // The GPIO device to play the timeline on.  Optional.  If not set, uses the default
-	Steps   []TimelineStep `json:"steps"`          // Steps for the timeline
-	Tags    []string       `json:"tags"`           // List of Tags to associate with this timeline
+	ID      string         `json:"id,omitempty"`      // Unique Timeline ID
+	Enabled bool           `json:"enabled,omitempty"` // Timeline enabled or not
+	Created string         `json:"created,omitempty"` // Timeline create time
+	Name    string         `json:"name"`              // Timeline name
+	GPIO    int            `json:"gpio,omitempty"`    // The GPIO device to play the timeline on.  Optional.  If not set, uses the default
+	Steps   []TimelineStep `json:"steps"`             // Steps for the timeline
+	Tags    []string       `json:"tags,omitempty"`    // List of Tags to associate with this timeline
 }
 
 // TimelineStep represents a single step in a timeline

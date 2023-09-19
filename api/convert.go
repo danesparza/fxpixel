@@ -1,22 +1,23 @@
 package api
 
 import (
+	"database/sql"
+	"encoding/json"
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	"github.com/danesparza/fxpixel/internal/data/const/step"
+	"github.com/rs/zerolog/log"
 	"time"
 )
 
-// Convert internal data model to api format
+// TimelineToApi converts internal data model to api format
 func TimelineToApi(tl data.Timeline) Timeline {
-
-	unixTimeUTC := time.Unix(tl.Created, 0) //gives unix time stamp in utc
 
 	//	Convert the base timeline information
 	retval := Timeline{
 		ID:      tl.ID,
 		Enabled: tl.Enabled,
-		Created: unixTimeUTC.Format(time.RFC3339),
+		Created: tl.Created.Format(time.RFC3339),
 		Name:    tl.Name,
 		GPIO:    int(tl.GPIO.Int32),
 		Tags:    tl.Tags,
@@ -113,6 +114,87 @@ func TimelineToApi(tl data.Timeline) Timeline {
 					BurstLength:     md.BurstLength,
 					BurstBrightness: md.BurstBrightness,
 				}
+			}
+		case step.Sleep:
+		case step.RandomSleep:
+		case step.Loop:
+		default:
+		}
+
+		//	Then add the step to the list of steps:
+		retval.Steps = append(retval.Steps, newStep)
+	}
+
+	//	Return the timeline
+	return retval
+}
+
+// ApiToTimeline converts api format to internal data model
+func ApiToTimeline(tl Timeline) data.Timeline {
+
+	//	Convert the base timeline information
+	retval := data.Timeline{
+		ID:      tl.ID,
+		Enabled: tl.Enabled,
+		Name:    tl.Name,
+		GPIO:    sql.NullInt32{Int32: int32(tl.GPIO), Valid: true},
+		Tags:    tl.Tags,
+	}
+
+	//	For each step ...
+	for _, item := range tl.Steps {
+		newStep := data.TimelineStep{
+			ID:     item.ID,
+			Type:   step.FromString(item.Type),
+			Effect: effect.FromString(item.Effect),
+			Leds:   sql.NullString{String: item.Leds, Valid: true},
+			Time:   sql.NullInt32{Int32: int32(item.Time), Valid: true},
+			Number: item.Number,
+		}
+
+		//	Convert the meta info to a json string:
+		metaInfo, _ := json.Marshal(item.MetaInfo)
+		jsonString := string(metaInfo)
+
+		//	... determine the step type
+		switch newStep.Type {
+		case step.Effect:
+			/* If it's an effect, load effect meta */
+			switch newStep.Effect {
+			case effect.Unknown:
+				//	We don't know what to do here
+			case effect.Solid:
+				em := data.SolidMeta{}
+				err := json.Unmarshal([]byte(jsonString), &em)
+				if err != nil {
+					log.Err(err).Msg("Problem unmarshalling SolidMeta")
+				}
+
+				newStep.MetaInfo = em
+			case effect.Fade:
+				em := data.FadeMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				newStep.MetaInfo = em
+			case effect.Gradient:
+				em := data.GradientMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				newStep.MetaInfo = em
+			case effect.Sequence:
+				em := data.SequenceMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				newStep.MetaInfo = em
+			case effect.Rainbow:
+				//	Don't need to do anything
+			case effect.Zip:
+				em := data.ZipMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				newStep.MetaInfo = em
+			case effect.KnightRider:
+				//	Don't need to do anything
+			case effect.Lightning:
+				em := data.LightningMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				newStep.MetaInfo = em
 			}
 		case step.Sleep:
 		case step.RandomSleep:

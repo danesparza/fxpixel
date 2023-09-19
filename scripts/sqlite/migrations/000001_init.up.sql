@@ -48,7 +48,7 @@ create table timeline_step
     step_meta    TEXT,
     step_number    integer not null,
 
-    FOREIGN KEY(timeline_id) REFERENCES timeline(id)
+    FOREIGN KEY(timeline_id) REFERENCES timeline(id) ON DELETE CASCADE
     FOREIGN KEY(step_type_id) REFERENCES timeline_step_type(id)
     FOREIGN KEY(effect_type_id) REFERENCES timeline_step_effect_type(id)
 

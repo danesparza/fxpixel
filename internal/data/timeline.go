@@ -16,7 +16,7 @@ func (a appDataService) AddTimeline(ctx context.Context, source Timeline) (Timel
 	retval := Timeline{
 		ID:      xid.New().String(), // Generate a new id
 		Enabled: true,
-		Created: time.Now().Unix(),
+		Created: time.Now(),
 		Name:    source.Name,
 		GPIO:    source.GPIO,
 		Steps:   source.Steps,
@@ -47,14 +47,14 @@ func (a appDataService) AddTimeline(ctx context.Context, source Timeline) (Timel
 		return retval, err
 	}
 
-	_, err = stmt.ExecContext(ctx, retval.ID, retval.Enabled, retval.Created, retval.Name, retval.GPIO)
+	_, err = stmt.ExecContext(ctx, retval.ID, retval.Enabled, retval.Created.Format(time.DateTime), retval.Name, retval.GPIO)
 	if err != nil {
 		return retval, fmt.Errorf("problem adding timeline: %v", err)
 	}
 
 	//	Insert each of the steps
 	for stepIndex, stepItem := range retval.Steps {
-		query := `timeline_step(id, timeline_id, step_type_id, effect_type_id, led_range, step_time, step_meta, step_number) 
+		query := `insert into timeline_step(id, timeline_id, step_type_id, effect_type_id, led_range, step_time, step_meta, step_number) 
 				values($1, $2, $3, $4, $5, $6, $7, $8);`
 
 		stmt, err := tx.PrepareContext(ctx, query)
@@ -62,13 +62,19 @@ func (a appDataService) AddTimeline(ctx context.Context, source Timeline) (Timel
 			return retval, err
 		}
 
+		//	Generate a new id:
+		newId := xid.New().String()
+
 		//	Marshal stepItem.MetaInfo to JSON
 		jsonString, _ := json.Marshal(stepItem.MetaInfo)
 
-		_, err = stmt.ExecContext(ctx, xid.New().String(), retval.ID, stepItem.Type, stepItem.Effect, stepItem.Leds, stepItem.Time, string(jsonString), stepIndex+1)
+		_, err = stmt.ExecContext(ctx, newId, retval.ID, stepItem.Type, stepItem.Effect, stepItem.Leds, stepItem.Time, string(jsonString), stepIndex+1)
 		if err != nil {
-			return retval, fmt.Errorf("problem problem adding step: %v", err)
+			return retval, fmt.Errorf("problem adding step: %v", err)
 		}
+
+		//	Set the ID on the step:
+		retval.Steps[stepIndex].ID = newId
 	}
 
 	// Commit the transaction.
@@ -125,11 +131,20 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 		}
 		tlStep := TimelineStep{}
 
-		if err := rows.Scan(&item.ID, &item.Enabled, &item.Created, &item.Name, &item.GPIO,
+		createTime := ""
+
+		if err := rows.Scan(&item.ID, &item.Enabled, &createTime, &item.Name, &item.GPIO,
 			&tlStep.ID, &tlStep.Type, &tlStep.Effect, &tlStep.Leds,
 			&tlStep.Time, &tlStep.MetaInfo, &tlStep.Number); err != nil {
 			return retval, fmt.Errorf("problem reading into struct: %v", err)
 		}
+
+		//	Parse the time:
+		parsedDate, err := time.Parse(time.DateTime, createTime)
+		if err != nil {
+			return nil, fmt.Errorf("Problem parsing create date: %v", err)
+		}
+		item.Created = parsedDate
 
 		//	If the tracked timeline doesn't exist yet, add it:
 		_, found := timelines[item.ID]

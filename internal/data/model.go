@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	"github.com/danesparza/fxpixel/internal/data/const/step"
+	"time"
 )
 
 // SystemConfig represents the system configuration information
@@ -16,7 +17,7 @@ type SystemConfig struct {
 type Timeline struct {
 	ID      string         `json:"id"`             // Unique Timeline ID
 	Enabled bool           `json:"enabled"`        // Timeline enabled or not
-	Created int64          `json:"created"`        // Timeline create time
+	Created time.Time      `json:"created"`        // Timeline create time
 	Name    string         `json:"name"`           // Timeline name
 	GPIO    sql.NullInt32  `json:"gpio,omitempty"` // The GPIO device to play the timeline on.  Optional.  If not set, uses the default
 	Steps   []TimelineStep `json:"steps"`          // Steps for the timeline

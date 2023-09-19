@@ -8,6 +8,7 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
+	_ = x[Unknown-0]
 	_ = x[Effect-1]
 	_ = x[Sleep-2]
 	_ = x[RandomSleep-3]
@@ -15,14 +16,13 @@ func _() {
 	_ = x[Loop-5]
 }
 
-const _StepType_name = "EffectSleepRandomSleepTriggerLoop"
+const _StepType_name = "UnknownEffectSleepRandomSleepTriggerLoop"
 
-var _StepType_index = [...]uint8{0, 6, 11, 22, 29, 33}
+var _StepType_index = [...]uint8{0, 7, 13, 18, 29, 36, 40}
 
 func (i StepType) String() string {
-	i -= 1
 	if i < 0 || i >= StepType(len(_StepType_index)-1) {
-		return "StepType(" + strconv.FormatInt(int64(i+1), 10) + ")"
+		return "StepType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _StepType_name[_StepType_index[i]:_StepType_index[i+1]]
 }
