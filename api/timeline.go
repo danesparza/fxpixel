@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
@@ -81,6 +82,43 @@ func (service Service) AddTimeline(rw http.ResponseWriter, req *http.Request) {
 	//	Construct our response
 	response := SystemResponse{
 		Message: fmt.Sprintf("Timeline added: %v", retval.ID),
+		Data:    retval,
+	}
+
+	//	Serialize to JSON & return the response:
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(response)
+
+}
+
+// GetTimeline godoc
+// @Summary Gets a single timeline
+// @Description Gets a single timeline
+// @Tags timeline
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} api.SystemResponse
+// @Failure 500 {object} api.ErrorResponse
+// @Router /timelines [put]
+func (service Service) GetTimeline(rw http.ResponseWriter, req *http.Request) {
+
+	//	Get the id from the url (if it's blank, return an error)
+	timelineId := chi.URLParam(req, "id")
+
+	//	Add a timeline
+	dbTimeline, err := service.DB.GetTimeline(req.Context(), timelineId)
+	if err != nil {
+		err = fmt.Errorf("error adding a timelines: %v", err)
+		sendErrorResponse(rw, err, http.StatusInternalServerError)
+		return
+	}
+
+	//	Convert the timeline to the API model:
+	retval := TimelineToApi(dbTimeline)
+
+	//	Construct our response
+	response := SystemResponse{
+		Message: fmt.Sprintf("Timeline fetched: %v", retval.ID),
 		Data:    retval,
 	}
 
