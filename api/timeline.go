@@ -108,7 +108,7 @@ func (service Service) GetTimeline(rw http.ResponseWriter, req *http.Request) {
 	//	Add a timeline
 	dbTimeline, err := service.DB.GetTimeline(req.Context(), timelineId)
 	if err != nil {
-		err = fmt.Errorf("error adding a timelines: %v", err)
+		err = fmt.Errorf("error getting a timeline: %v", err)
 		sendErrorResponse(rw, err, http.StatusInternalServerError)
 		return
 	}
@@ -120,6 +120,40 @@ func (service Service) GetTimeline(rw http.ResponseWriter, req *http.Request) {
 	response := SystemResponse{
 		Message: fmt.Sprintf("Timeline fetched: %v", retval.ID),
 		Data:    retval,
+	}
+
+	//	Serialize to JSON & return the response:
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(response)
+
+}
+
+// DeleteTimeline godoc
+// @Summary Delete a single timeline
+// @Description Delete a single timeline
+// @Tags timeline
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} api.SystemResponse
+// @Failure 500 {object} api.ErrorResponse
+// @Router /timelines [delete]
+func (service Service) DeleteTimeline(rw http.ResponseWriter, req *http.Request) {
+
+	//	Get the id from the url (if it's blank, return an error)
+	timelineId := chi.URLParam(req, "id")
+
+	//	Add a timeline
+	err := service.DB.DeleteTimeline(req.Context(), timelineId)
+	if err != nil {
+		err = fmt.Errorf("error deleting a timeline: %v", err)
+		sendErrorResponse(rw, err, http.StatusInternalServerError)
+		return
+	}
+
+	//	Construct our response
+	response := SystemResponse{
+		Message: fmt.Sprintf("Timeline deleted: %v", timelineId),
+		Data:    timelineId,
 	}
 
 	//	Serialize to JSON & return the response:

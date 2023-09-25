@@ -96,11 +96,11 @@ func start(cmd *cobra.Command, args []string) {
 
 		//	Timeline management
 		r.Route("/timelines", func(r chi.Router) {
-			r.Put("/", apiService.AddTimeline)     // Add a timeline
-			r.Get("/", apiService.GetAllTimelines) // Get all timelines
-			r.Get("/{id}", apiService.GetTimeline) // Get a single timeline
-			r.Delete("/{id}", apiService.ShowUI)   // Delete a timeline
-			r.Post("/{id}", apiService.ShowUI)     // Update a timeline
+			r.Put("/", apiService.AddTimeline)           // Add a timeline
+			r.Get("/", apiService.GetAllTimelines)       // Get all timelines
+			r.Get("/{id}", apiService.GetTimeline)       // Get a single timeline
+			r.Delete("/{id}", apiService.DeleteTimeline) // Delete a timeline
+			r.Post("/{id}", apiService.ShowUI)           // Update a timeline
 		})
 
 		//	Run or stop a timeline

@@ -363,8 +363,36 @@ func (a appDataService) GetAllTimelinesWithTag(ctx context.Context, tag string) 
 }
 
 func (a appDataService) DeleteTimeline(ctx context.Context, id string) error {
-	//TODO implement me
-	panic("implement me")
+
+	// Get a Tx for making transaction requests.
+	tx, err := a.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("problem starting transaction: %v", err)
+	}
+
+	// Defer a rollback in case anything fails.
+	defer tx.Rollback()
+
+	//	Insert into the timeline table
+	query := `PRAGMA foreign_keys = ON;
+			delete from timeline where id = $1;`
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("problem preparing context: %v", err)
+	}
+
+	_, err = stmt.ExecContext(ctx, id)
+	if err != nil {
+		return fmt.Errorf("problem deleting timeline: %v", err)
+	}
+
+	// Commit the transaction.
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("problem committing transaction: %v", err)
+	}
+
+	return nil
 }
 
 func (a appDataService) UpdateTags(ctx context.Context, id string, tags []string) error {
