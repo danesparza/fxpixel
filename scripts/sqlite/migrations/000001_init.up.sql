@@ -16,7 +16,8 @@ create table timeline
     enabled INT     default 1,
     created integer default CURRENT_TIMESTAMP,
     name    TEXT,
-    gpio    integer
+    gpio    integer,
+    tags    TEXT    /* JSON string array */
 );
 
 create table timeline_step_type

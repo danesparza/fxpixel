@@ -11,6 +11,67 @@ definitions:
       message:
         type: string
     type: object
+  api.Timeline:
+    properties:
+      created:
+        description: Timeline create time
+        type: string
+      enabled:
+        description: Timeline enabled or not
+        type: boolean
+      gpio:
+        description: The GPIO device to play the timeline on.  Optional.  If not set,
+          uses the default
+        type: integer
+      id:
+        description: Unique Timeline ID
+        type: string
+      name:
+        description: Timeline name
+        type: string
+      steps:
+        description: Steps for the timeline
+        items:
+          $ref: '#/definitions/api.TimelineStep'
+        type: array
+      tags:
+        description: List of Tags to associate with this timeline
+        items:
+          type: string
+        type: array
+    type: object
+  api.TimelineStep:
+    properties:
+      effect:
+        description: The Effect type (if Type=effect)
+        type: string
+      id:
+        description: The timeline step id
+        type: string
+      leds:
+        description: Leds to use for the scene (optional) If not set and is required
+          for the type, defaults to entire strip
+        type: string
+      meta-info:
+        description: Additional information required for specific types
+      number:
+        description: The step number (ordinal position in the timeline)
+        type: integer
+      time:
+        description: Time (in milliseconds).  Some things (like trigger) don't require
+          time
+        type: integer
+      type:
+        description: Timeline frame type (effect/sleep/trigger/loop)
+        type: string
+    type: object
+  api.UpdateTagsRequest:
+    properties:
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
 info:
   contact: {}
   description: fxPixel LED lighting effects REST service
@@ -43,6 +104,13 @@ paths:
       consumes:
       - application/json
       description: Adds a timeline to the system
+      parameters:
+      - description: The timeline to add
+        in: body
+        name: endpoint
+        required: true
+        schema:
+          $ref: '#/definitions/api.Timeline'
       produces:
       - application/json
       responses:
@@ -55,6 +123,93 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Adds a timeline to the system
+      tags:
+      - timeline
+  /timelines/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a single timeline
+      parameters:
+      - description: The timeline id to delete
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete a single timeline
+      tags:
+      - timeline
+    get:
+      consumes:
+      - application/json
+      description: Gets a single timeline
+      parameters:
+      - description: The timeline id to get
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Gets a single timeline
+      tags:
+      - timeline
+    post:
+      consumes:
+      - application/json
+      description: Updates tags for a timeline
+      parameters:
+      - description: The timeline id to update tags for
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The tags to set for the timeline
+        in: body
+        name: endpoint
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateTagsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Updates tags for a timeline
       tags:
       - timeline
 swagger: "2.0"

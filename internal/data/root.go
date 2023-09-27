@@ -31,7 +31,9 @@ type appDataService struct {
 
 // InitConfig performs runtime config
 func (a appDataService) InitConfig() error {
-	//	Set the pragma for delete cascade
+
+	/* Turn on foreign key support (I can't believe we have to do this) */
+	/* More information: https://www.sqlite.org/foreignkeys.html */
 	_, err := a.DB.Exec(`PRAGMA foreign_keys = ON;`)
 	if err != nil {
 		return err

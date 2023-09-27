@@ -39,15 +39,18 @@ func (a appDataService) AddTimeline(ctx context.Context, source Timeline) (Timel
 	defer tx.Rollback()
 
 	//	Insert into the timeline table
-	query := `insert into timeline(id, enabled, created, name, gpio) 
-				values($1, $2, $3, $4, $5);`
+	query := `insert into timeline(id, enabled, created, name, gpio, tags) 
+				values($1, $2, $3, $4, $5, $6);`
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
 		return retval, err
 	}
 
-	_, err = stmt.ExecContext(ctx, retval.ID, retval.Enabled, retval.Created.Format(time.DateTime), retval.Name, retval.GPIO)
+	//	Format tags as a json array:
+	jsonTags, _ := json.Marshal(source.Tags)
+
+	_, err = stmt.ExecContext(ctx, retval.ID, retval.Enabled, retval.Created.Format(time.DateTime), retval.Name, retval.GPIO, string(jsonTags))
 	if err != nil {
 		return retval, fmt.Errorf("problem adding timeline: %v", err)
 	}
@@ -93,7 +96,7 @@ func (a appDataService) GetTimeline(ctx context.Context, id string) (Timeline, e
 	}
 
 	query := `select
-		tl.id, tl.enabled, tl.created, tl.name, tl.gpio,
+		tl.id, tl.enabled, tl.created, tl.name, tl.gpio, tl.tags,
 		ts.id, ts.step_type_id, ts.effect_type_id, ts.led_range,
 		ts.step_time, ts.step_meta, ts.step_number
 	from
@@ -123,10 +126,11 @@ func (a appDataService) GetTimeline(ctx context.Context, id string) (Timeline, e
 
 	for rows.Next() {
 		tlStep := TimelineStep{}
+		tags := []byte{}
 
 		createTime := ""
 
-		if err := rows.Scan(&retval.ID, &retval.Enabled, &createTime, &retval.Name, &retval.GPIO,
+		if err := rows.Scan(&retval.ID, &retval.Enabled, &createTime, &retval.Name, &retval.GPIO, &tags,
 			&tlStep.ID, &tlStep.Type, &tlStep.Effect, &tlStep.Leds,
 			&tlStep.Time, &tlStep.MetaInfo, &tlStep.Number); err != nil {
 			return retval, fmt.Errorf("problem reading into struct: %v", err)
@@ -198,13 +202,13 @@ func (a appDataService) GetTimeline(ctx context.Context, id string) (Timeline, e
 			retval.Steps = append(retval.Steps, tlStep)
 		}
 
-		////	If we have data in tags ...
-		//if tags != nil {
-		//	//	Unmarshal the JSON tag array
-		//	if err := json.Unmarshal(tags, &item.Tags); err != nil {
-		//		return retval, fmt.Errorf("problem decoding tags for %v: %v", item.ID, err)
-		//	}
-		//}
+		//	If we have data in tags ...
+		if tags != nil {
+			//	Unmarshal the JSON tag array
+			if err := json.Unmarshal(tags, &retval.Tags); err != nil {
+				return retval, fmt.Errorf("problem decoding tags for timeline %v: %v", retval.ID, err)
+			}
+		}
 	}
 
 	//	Return our data:
@@ -219,7 +223,7 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 	timelines := map[string]Timeline{}
 
 	query := `select
-		tl.id, tl.enabled, tl.created, tl.name, tl.gpio,
+		tl.id, tl.enabled, tl.created, tl.name, tl.gpio, tl.tags,
 		ts.id, ts.step_type_id, ts.effect_type_id, ts.led_range,
 		ts.step_time, ts.step_meta, ts.step_number
 	from
@@ -251,10 +255,11 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 			Tags:  []string{},
 		}
 		tlStep := TimelineStep{}
+		tags := []byte{}
 
 		createTime := ""
 
-		if err := rows.Scan(&item.ID, &item.Enabled, &createTime, &item.Name, &item.GPIO,
+		if err := rows.Scan(&item.ID, &item.Enabled, &createTime, &item.Name, &item.GPIO, &tags,
 			&tlStep.ID, &tlStep.Type, &tlStep.Effect, &tlStep.Leds,
 			&tlStep.Time, &tlStep.MetaInfo, &tlStep.Number); err != nil {
 			return retval, fmt.Errorf("problem reading into struct: %v", err)
@@ -266,6 +271,14 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 			return nil, fmt.Errorf("Problem parsing create date: %v", err)
 		}
 		item.Created = parsedDate
+
+		//	If we have data in tags ...
+		if tags != nil {
+			//	Unmarshal the JSON tag array
+			if err := json.Unmarshal(tags, &item.Tags); err != nil {
+				log.Err(err).Str("timelineid", item.ID).Msg("problem decoding tags for timeline")
+			}
+		}
 
 		//	If the tracked timeline doesn't exist yet, add it:
 		_, found := timelines[item.ID]
@@ -338,14 +351,6 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 				timelines[item.ID] = entry
 			}
 		}
-
-		////	If we have data in tags ...
-		//if tags != nil {
-		//	//	Unmarshal the JSON tag array
-		//	if err := json.Unmarshal(tags, &item.Tags); err != nil {
-		//		return retval, fmt.Errorf("problem decoding tags for %v: %v", item.ID, err)
-		//	}
-		//}
 	}
 
 	//	For each item in the map, assign to the output slice:
@@ -395,6 +400,24 @@ func (a appDataService) DeleteTimeline(ctx context.Context, id string) error {
 }
 
 func (a appDataService) UpdateTags(ctx context.Context, id string, tags []string) error {
-	//TODO implement me
-	panic("implement me")
+
+	query := `update timeline
+		set tags = $1
+		where id = $2;`
+
+	stmt, err := a.DB.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	//	Format tags as a json array:
+	jsonTags, _ := json.Marshal(tags)
+
+	//	Set the tags argument as the json array:
+	_, err = stmt.ExecContext(ctx, string(jsonTags), id)
+	if err != nil {
+		return fmt.Errorf("problem executing query: %v", err)
+	}
+
+	return nil
 }

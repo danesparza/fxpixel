@@ -100,7 +100,7 @@ func start(cmd *cobra.Command, args []string) {
 			r.Get("/", apiService.GetAllTimelines)       // Get all timelines
 			r.Get("/{id}", apiService.GetTimeline)       // Get a single timeline
 			r.Delete("/{id}", apiService.DeleteTimeline) // Delete a timeline
-			r.Post("/{id}", apiService.ShowUI)           // Update a timeline
+			r.Post("/{id}", apiService.UpdateTags)       // Update timeline tags
 		})
 
 		//	Run or stop a timeline
