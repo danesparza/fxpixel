@@ -373,22 +373,6 @@ func (a appDataService) DeleteTimeline(ctx context.Context, id string) error {
 	// Defer a rollback in case anything fails.
 	defer tx.Rollback()
 
-	//	Set the pragma for delete cascade
-	tx.ExecContext(ctx, `PRAGMA foreign_keys = ON;`)
-
-	//	Delete from the timeline steps table:
-	querystep := `delete from timeline_step where timeline_id = $1;`
-
-	stmtstep, err := tx.PrepareContext(ctx, querystep)
-	if err != nil {
-		return fmt.Errorf("problem preparing context for steps: %v", err)
-	}
-
-	_, err = stmtstep.ExecContext(ctx, id)
-	if err != nil {
-		return fmt.Errorf("problem deleting timeline steps: %v", err)
-	}
-
 	//	Delete from the timeline table
 	query := `delete from timeline where id = $1;`
 

@@ -16,6 +16,7 @@ import (
 )
 
 type AppDataService interface {
+	InitConfig() error
 	AddTimeline(ctx context.Context, source Timeline) (Timeline, error)
 	GetTimeline(ctx context.Context, id string) (Timeline, error)
 	GetAllTimelines(ctx context.Context) ([]Timeline, error)
@@ -28,8 +29,26 @@ type appDataService struct {
 	*sqlx.DB
 }
 
+// InitConfig performs runtime config
+func (a appDataService) InitConfig() error {
+	//	Set the pragma for delete cascade
+	_, err := a.DB.Exec(`PRAGMA foreign_keys = ON;`)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewAppDataService(db *sqlx.DB) AppDataService {
-	return &appDataService{db}
+	svc := &appDataService{db}
+
+	err := svc.InitConfig()
+	if err != nil {
+		log.Err(err).Msg("There was a problem initializing the SQLite config")
+	}
+
+	return svc
 }
 
 // InitSqlite initializes SQLite and returns a pointer to the db
