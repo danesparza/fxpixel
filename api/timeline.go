@@ -45,6 +45,48 @@ func (service Service) GetAllTimelines(rw http.ResponseWriter, req *http.Request
 
 }
 
+// GetAllTimelinesWithTag godoc
+// @Summary Gets timelines that have a tag
+// @Description Gets timelines that have a tag
+// @Tags timeline
+// @Accept  json
+// @Produce  json
+// @Param tag path string true "The tag to use when fetching timelines"
+// @Success 200 {object} api.SystemResponse
+// @Failure 500 {object} api.ErrorResponse
+// @Router /timelines/tag/{tag} [get]
+func (service Service) GetAllTimelinesWithTag(rw http.ResponseWriter, req *http.Request) {
+
+	//	Get the id from the url (if it's blank, return an error)
+	tag := chi.URLParam(req, "tag")
+
+	//	Add a timeline
+	dbTimelines, err := service.DB.GetAllTimelinesWithTag(req.Context(), tag)
+	if err != nil {
+		err = fmt.Errorf("error getting a timeline: %v", err)
+		sendErrorResponse(rw, err, http.StatusInternalServerError)
+		return
+	}
+
+	//	For each timeline, convert it to the API model:
+	retval := []Timeline{}
+	for _, timeline := range dbTimelines {
+		apiTimeline := TimelineToApi(timeline)
+		retval = append(retval, apiTimeline)
+	}
+
+	//	Construct our response
+	response := SystemResponse{
+		Message: fmt.Sprintf("%v timelines(s)", len(retval)),
+		Data:    retval,
+	}
+
+	//	Serialize to JSON & return the response:
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(response)
+
+}
+
 // AddTimeline godoc
 // @Summary Adds a timeline to the system
 // @Description Adds a timeline to the system

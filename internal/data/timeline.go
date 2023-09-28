@@ -363,8 +363,152 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 }
 
 func (a appDataService) GetAllTimelinesWithTag(ctx context.Context, tag string) ([]Timeline, error) {
-	//TODO implement me
-	panic("implement me")
+	//	Our return item
+	retval := []Timeline{}
+
+	//	Our temporary maps to keep track of Timelines and their step info
+	timelines := map[string]Timeline{}
+
+	query := `select
+		tl.id, tl.enabled, tl.created, tl.name, tl.gpio, tl.tags,
+		ts.id, ts.step_type_id, ts.effect_type_id, ts.led_range,
+		ts.step_time, ts.step_meta, ts.step_number
+	from
+		timeline tl, json_each(tl.tags)
+		join timeline_step ts
+			on ts.timeline_id = tl.id
+	where
+	    json_each.value like $1
+	order by
+    	ts.step_number;`
+
+	stmt, err := a.DB.PreparexContext(ctx, query)
+	if err != nil {
+		return retval, err
+	}
+
+	rows, err := stmt.QueryxContext(ctx, tag)
+	if err != nil {
+		return retval, err
+	}
+
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			log.Err(closeErr).Msg("unable to close rows")
+		}
+	}()
+
+	for rows.Next() {
+		item := Timeline{
+			Steps: []TimelineStep{},
+			Tags:  []string{},
+		}
+		tlStep := TimelineStep{}
+		tags := []byte{}
+
+		createTime := ""
+
+		if err := rows.Scan(&item.ID, &item.Enabled, &createTime, &item.Name, &item.GPIO, &tags,
+			&tlStep.ID, &tlStep.Type, &tlStep.Effect, &tlStep.Leds,
+			&tlStep.Time, &tlStep.MetaInfo, &tlStep.Number); err != nil {
+			return retval, fmt.Errorf("problem reading into struct: %v", err)
+		}
+
+		//	Parse the time:
+		parsedDate, err := time.Parse(time.DateTime, createTime)
+		if err != nil {
+			return nil, fmt.Errorf("Problem parsing create date: %v", err)
+		}
+		item.Created = parsedDate
+
+		//	If we have data in tags ...
+		if tags != nil {
+			//	Unmarshal the JSON tag array
+			if err := json.Unmarshal(tags, &item.Tags); err != nil {
+				log.Err(err).Str("timelineid", item.ID).Msg("problem decoding tags for timeline")
+			}
+		}
+
+		//	If the tracked timeline doesn't exist yet, add it:
+		_, found := timelines[item.ID]
+		if !found {
+			timelines[item.ID] = item
+		}
+
+		//	If we have data in the tlStep.ID,
+		//	add the tlStep information to the referenced timeline
+		if tlStep.ID != "" {
+
+			//	Convert the meta info to a json string:
+			metaInfo, _ := json.Marshal(tlStep.MetaInfo)
+			var jsonString string
+			json.Unmarshal(metaInfo, &jsonString)
+
+			//	... determine the step type
+			switch tlStep.Type {
+			case step.Effect:
+				/* If it's an effect, load effect meta */
+				switch tlStep.Effect {
+				case effect.Unknown:
+					//	We don't know what to do here
+				case effect.Solid:
+					em := SolidMeta{}
+					err := json.Unmarshal([]byte(jsonString), &em)
+					if err != nil {
+						log.Err(err).Msg("Problem unmarshalling SolidMeta")
+					}
+
+					tlStep.MetaInfo = em
+				case effect.Fade:
+					em := FadeMeta{}
+					json.Unmarshal([]byte(jsonString), &em)
+					tlStep.MetaInfo = em
+				case effect.Gradient:
+					em := GradientMeta{}
+					json.Unmarshal([]byte(jsonString), &em)
+					tlStep.MetaInfo = em
+				case effect.Sequence:
+					em := SequenceMeta{}
+					json.Unmarshal([]byte(jsonString), &em)
+					tlStep.MetaInfo = em
+				case effect.Rainbow:
+					//	Don't need to do anything
+				case effect.Zip:
+					em := ZipMeta{}
+					json.Unmarshal([]byte(jsonString), &em)
+					tlStep.MetaInfo = em
+				case effect.KnightRider:
+					//	Don't need to do anything
+				case effect.Lightning:
+					em := LightningMeta{}
+					json.Unmarshal([]byte(jsonString), &em)
+					tlStep.MetaInfo = em
+				}
+			case step.Sleep:
+			case step.RandomSleep:
+			case step.Loop:
+			default:
+			}
+
+			//	Get a copy
+			if entry, ok := timelines[item.ID]; ok {
+
+				// Then we modify the copy
+				entry.Steps = append(timelines[item.ID].Steps, tlStep)
+
+				// Then we reassign map entry
+				timelines[item.ID] = entry
+			}
+		}
+	}
+
+	//	For each item in the map, assign to the output slice:
+	for _, v := range timelines {
+		retval = append(retval, v)
+	}
+
+	//	Return our data:
+	return retval, nil
 }
 
 func (a appDataService) DeleteTimeline(ctx context.Context, id string) error {

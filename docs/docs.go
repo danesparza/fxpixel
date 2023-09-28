@@ -87,6 +87,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/timelines/tag/{tag}": {
+            "get": {
+                "description": "Gets timelines that have a tag",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "timeline"
+                ],
+                "summary": "Gets timelines that have a tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The tag to use when fetching timelines",
+                        "name": "tag",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.SystemResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/timelines/{id}": {
             "get": {
                 "description": "Gets a single timeline",

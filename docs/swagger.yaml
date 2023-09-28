@@ -212,4 +212,29 @@ paths:
       summary: Updates tags for a timeline
       tags:
       - timeline
+  /timelines/tag/{tag}:
+    get:
+      consumes:
+      - application/json
+      description: Gets timelines that have a tag
+      parameters:
+      - description: The tag to use when fetching timelines
+        in: path
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Gets timelines that have a tag
+      tags:
+      - timeline
 swagger: "2.0"

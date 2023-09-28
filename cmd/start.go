@@ -7,13 +7,9 @@ import (
 	_ "github.com/danesparza/fxpixel/docs" // swagger docs location
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/leds"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	httpSwagger "github.com/swaggo/http-swagger" // http-swagger middleware
 	"net/http"
 	"os"
 	"os/signal"
@@ -71,56 +67,8 @@ func start(cmd *cobra.Command, args []string) {
 	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM)
 	go handleSignals(ctx, sigs, cancel)
 
-	//	Create a router and set up our REST endpoints...
-	r := chi.NewRouter()
-
-	//	Add middleware
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Compress(5))
-	r.Use(api.ApiVersionMiddleware)
-
-	//	... including CORS middleware
-	r.Use(cors.Handler(cors.Options{
-		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
-	}))
-
-	r.Route("/v1", func(r chi.Router) {
-
-		//	System config
-		r.Route("/config", func(r chi.Router) {
-			r.Get("/", apiService.ShowUI)       // Get all system config keys and values
-			r.Post("/{key}", apiService.ShowUI) // Update system config value
-		})
-
-		//	Timeline management
-		r.Route("/timelines", func(r chi.Router) {
-			r.Put("/", apiService.AddTimeline)           // Add a timeline
-			r.Get("/", apiService.GetAllTimelines)       // Get all timelines
-			r.Get("/{id}", apiService.GetTimeline)       // Get a single timeline
-			r.Delete("/{id}", apiService.DeleteTimeline) // Delete a timeline
-			r.Post("/{id}", apiService.UpdateTags)       // Update timeline tags
-		})
-
-		//	Run or stop a timeline
-		r.Route("/timeline", func(r chi.Router) {
-			r.Post("/run", apiService.ShowUI)              // Run a random timeline
-			r.Post("/run/{id}", apiService.ShowUI)         // Run a specific timeline
-			r.Post("/run/random/{tag}", apiService.ShowUI) // Run a random timeline in a tag
-			r.Post("/stop", apiService.ShowUI)             // Stop all running timelines
-			r.Post("/stop/{id}", apiService.ShowUI)        // Stop a specific timeline
-		})
-	})
-
-	//	SWAGGER
-	r.Mount("/swagger", httpSwagger.WrapHandler)
+	//	Set up the API routes
+	r := api.NewRouter(apiService)
 
 	//	Start the media processor:
 	//go media.HandleAndProcess(ctx, apiService.PlayMedia, apiService.StopMedia, apiService.StopAllMedia)
