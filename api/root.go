@@ -34,6 +34,11 @@ type UpdateTagsRequest struct {
 	Tags []string `json:"tags"`
 }
 
+// UpdateConfigValueRequest represents a request to update a system config value
+type UpdateConfigValueRequest struct {
+	Value int `json:"value"`
+}
+
 // SystemResponse is a response for a system request
 type SystemResponse struct {
 	Message string      `json:"message"`

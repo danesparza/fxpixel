@@ -94,6 +94,12 @@ func start(cmd *cobra.Command, args []string) {
 
 	r.Route("/v1", func(r chi.Router) {
 
+		//	System config
+		r.Route("/config", func(r chi.Router) {
+			r.Get("/", apiService.ShowUI)       // Get all system config keys and values
+			r.Post("/{key}", apiService.ShowUI) // Update system config value
+		})
+
 		//	Timeline management
 		r.Route("/timelines", func(r chi.Router) {
 			r.Put("/", apiService.AddTimeline)           // Add a timeline
