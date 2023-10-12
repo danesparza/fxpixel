@@ -52,11 +52,19 @@ func start(cmd *cobra.Command, args []string) {
 	//	Init the AppDataService
 	appdata := data.NewAppDataService(db)
 
-	//	Create an api service object
-	apiService := api.Service{
+	//	Create a background service object
+	backgroundService := leds.BackgroundProcess{
 		PlayTimeline:     make(chan leds.PlayTimelineRequest),
 		StopTimeline:     make(chan string),
 		StopAllTimelines: make(chan bool),
+		DB:               appdata,
+	}
+
+	//	Create an api service object
+	apiService := api.Service{
+		PlayTimeline:     backgroundService.PlayTimeline,
+		StopTimeline:     backgroundService.StopTimeline,
+		StopAllTimelines: backgroundService.StopAllTimelines,
 		DB:               appdata,
 		StartTime:        time.Now(),
 	}
@@ -70,8 +78,8 @@ func start(cmd *cobra.Command, args []string) {
 	//	Set up the API routes
 	r := api.NewRouter(apiService)
 
-	//	Start the media processor:
-	//go media.HandleAndProcess(ctx, apiService.PlayMedia, apiService.StopMedia, apiService.StopAllMedia)
+	//	Start the timeline processor:
+	go backgroundService.HandleAndProcess(ctx)
 
 	//	Format the bound interface:
 	formattedServerPort := fmt.Sprintf(":%v", viper.GetString("server.port"))

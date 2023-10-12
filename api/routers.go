@@ -34,8 +34,8 @@ func NewRouter(apiService Service) http.Handler {
 
 		//	System config
 		r.Route("/config", func(r chi.Router) {
-			r.Get("/", apiService.ShowUI)       // Get all system config keys and values
-			r.Post("/{key}", apiService.ShowUI) // Update system config value
+			r.Get("/", apiService.GetSystemConfig) // Get all system config keys and values
+			r.Post("/{key}", apiService.ShowUI)    // Update system config value
 		})
 
 		//	Timeline management

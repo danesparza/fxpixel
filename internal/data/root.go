@@ -16,13 +16,15 @@ import (
 )
 
 type AppDataService interface {
-	InitConfig() error
+	InitRuntimeConfig() error
 	AddTimeline(ctx context.Context, source Timeline) (Timeline, error)
 	GetTimeline(ctx context.Context, id string) (Timeline, error)
 	GetAllTimelines(ctx context.Context) ([]Timeline, error)
 	GetAllTimelinesWithTag(ctx context.Context, tag string) ([]Timeline, error)
 	DeleteTimeline(ctx context.Context, id string) error
 	UpdateTags(ctx context.Context, id string, tags []string) error
+	GetSystemConfig(ctx context.Context) (SystemConfig, error)
+	SetSystemConfig(ctx context.Context, config SystemConfig) error
 }
 
 type appDataService struct {
@@ -30,7 +32,7 @@ type appDataService struct {
 }
 
 // InitConfig performs runtime config
-func (a appDataService) InitConfig() error {
+func (a appDataService) InitRuntimeConfig() error {
 
 	/* Turn on foreign key support (I can't believe we have to do this) */
 	/* More information: https://www.sqlite.org/foreignkeys.html */
@@ -45,9 +47,9 @@ func (a appDataService) InitConfig() error {
 func NewAppDataService(db *sqlx.DB) AppDataService {
 	svc := &appDataService{db}
 
-	err := svc.InitConfig()
+	err := svc.InitRuntimeConfig()
 	if err != nil {
-		log.Err(err).Msg("There was a problem initializing the SQLite config")
+		log.Err(err).Msg("There was a problem initializing the SQLite runtime config")
 	}
 
 	return svc
