@@ -2,7 +2,9 @@ package leds
 
 import (
 	"context"
+	"database/sql"
 	"github.com/danesparza/fxpixel/internal/data"
+	stepType "github.com/danesparza/fxpixel/internal/data/const/step"
 	"github.com/rs/zerolog/log"
 	"sync"
 )
@@ -98,8 +100,7 @@ func (bp *BackgroundProcess) HandleAndProcess(systemctx context.Context) {
 // PlayTimeline plays a timeline
 func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimelineRequest) {
 	//	Create a cancelable context from the passed context
-	//ctx, cancel := context.WithCancel(cx)
-	_, cancel := context.WithCancel(cx)
+	ctx, cancel := context.WithCancel(cx)
 	defer cancel()
 
 	//	Add an entry to the map with
@@ -110,21 +111,25 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 	bp.PlayingTimelines.m[req.ProcessID] = cancel
 	bp.PlayingTimelines.rwMutex.Unlock()
 
+	//	Get the system default configuration
+	systemConfig, err := bp.DB.GetSystemConfig(ctx)
+	if err != nil {
+		log.Err(err).Msg("An error occurred trying to get the system config")
+		return
+	}
+
 	//	Process the timeline
 	log.Debug().Str("ProcessID", req.ProcessID).Msg("Processing timeline")
 
 	//	First, see if the timeline has a GPIO port set on it.
-	//if req.RequestedTimeline.GPIO.Valid == false || req.RequestedTimeline.GPIO.Int32 == 0 {
-	//	//	Get the system default GPIO
-	//	// defaultGPIO, err := bp.DB.GetDefaultUSBDev()
-	//	if err != nil {
-	//		bp.DB.AddEvent(event.TimelineError, fmt.Sprintf("An error occurred trying to get the default USB device: %v", err), "", bp.HistoryTTL)
-	//		return
-	//	}
-	//
-	//	//	If it doesn't, grab the default and use that.
-	//	req.RequestedTimeline.GPIO = defaultDevice
-	//}
+	if req.RequestedTimeline.GPIO.Valid == false || req.RequestedTimeline.GPIO.Int32 == 0 {
+		//	If it doesn't have the information
+		//	Grab the default and use that.
+		req.RequestedTimeline.GPIO = sql.NullInt32{
+			Int32: int32(systemConfig.GPIO),
+			Valid: true,
+		}
+	}
 
 	//	Keep a channel state map:
 	//channelState := map[int]byte{}
@@ -133,97 +138,43 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 	//var wg sync.WaitGroup
 
 	//	Iterate through each step
-	/*
-		for _, step := range req.RequestedTimeline.Steps {
 
-			select {
-			default:
+	for _, step := range req.RequestedTimeline.Steps {
 
-				//	Find out what type of frame this is, and act accordingly:
-				switch strings.ToLower(frame.Type) {
-				case "scene":
-					//	Iterate through each of the channels and set them, then render
-					for _, channel := range frame.Channels {
-						//	Set dmx value for each channel:
-						dmx.SetChannel(channel.Channel, channel.Value)
+		select {
+		default:
 
-						//	Track chennel state:
-						channelState[channel.Channel] = channel.Value
-					}
-					dmx.Render()
+			//	Find out what type of frame this is, and act accordingly:
+			switch step.Type {
+			case stepType.Unknown:
+				//	We're not sure what happened, but this can't be processed.
+				log.Warn().
+					Str("timelineid", req.RequestedTimeline.ID).
+					Str("stepid", step.ID).
+					Msg("Step has unknown steptype and can't be processed")
 
-				case "fade":
+			case stepType.Loop:
+				//	Get the loop information and process the loop:
 
-					//	Iterate through each of the channels.
-					for _, channel := range frame.Channels {
+			case stepType.Trigger:
+				//	Get the trigger information and process the trigger:
 
-						wg.Add(1)
+			case stepType.Sleep:
+				//	Get the sleep information and pause here
 
-						//	Find the initial value, and pass that to the fade operation:
-						//	(if we can't find it, assume it's 0 and pass that)
-						ivalue, prs := channelState[channel.Channel]
-						if !prs {
-							ivalue = 0
-						}
+			case stepType.RandomSleep:
+				//	Get the random sleep parameters and pause here
 
-						go func(channelInfo data.ChannelValue, initialValue byte) {
-							// Decrement the counter when the goroutine completes.
-							defer wg.Done()
+			case stepType.Effect:
+				//	Find the effect type and process it.
 
-							//	Compare with the initial state, then render repeatedly
-							//	toward the target value in a for loop (pay attention to the direction).
-							if initialValue < channelInfo.Value {
-								//	We need to fade up
-								for i := initialValue; i < channelInfo.Value; i++ {
-									select {
-									case <-time.After(1 * time.Millisecond):
-										dmx.SetChannel(channelInfo.Channel, byte(i))
-										dmx.Render()
-									case <-ctx.Done():
-										return
-									}
-								}
-							} else {
-								//	We need to fade down
-								for i := initialValue; i > 0; i-- {
-									select {
-									case <-time.After(1 * time.Millisecond):
-										dmx.SetChannel(channelInfo.Channel, byte(i))
-										dmx.Render()
-									case <-ctx.Done():
-										return
-									}
-								}
-							}
-
-						}(channel, ivalue)
-
-						//	This means we'll need to put a mutex around them map. (for thread safe map interactions)
-
-						//	Also:  Track the new value of the channel
-						channelState[channel.Channel] = channel.Value
-
-					}
-
-					// Wait for all fades to complete.
-					wg.Wait()
-
-				case "sleep":
-					//	Just sleep for the specified number of seconds
-					select {
-					case <-time.After(time.Duration(frame.SleepTime) * time.Second):
-						continue
-					case <-ctx.Done():
-						return
-					}
-				}
-
-			case <-ctx.Done():
-				// stop
-				return
 			}
+
+		case <-ctx.Done():
+			// stop
+			return
 		}
-	*/
+	}
 
 	//	Remove ourselves from the map and exit (critical section)
 	bp.PlayingTimelines.rwMutex.Lock()
