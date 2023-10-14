@@ -99,7 +99,7 @@ paths:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Get the system configuration information
       tags:
-      - timeline
+      - config
   /timeline/run/{id}:
     post:
       consumes:

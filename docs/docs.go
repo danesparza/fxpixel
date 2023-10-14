@@ -30,7 +30,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "timeline"
+                    "config"
                 ],
                 "summary": "Get the system configuration information",
                 "responses": {

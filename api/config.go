@@ -9,7 +9,7 @@ import (
 // GetSystemConfig godoc
 // @Summary Get the system configuration information
 // @Description Get the system configuration information
-// @Tags timeline
+// @Tags config
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} api.SystemResponse
