@@ -100,6 +100,35 @@ paths:
       summary: Get the system configuration information
       tags:
       - timeline
+  /timeline/run/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Plays a timeline in the system
+      parameters:
+      - description: The timeline id to play
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Plays a timeline in the system
+      tags:
+      - process
   /timelines:
     get:
       consumes:

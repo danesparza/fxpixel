@@ -49,6 +49,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/timeline/run/{id}": {
+            "post": {
+                "description": "Plays a timeline in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Plays a timeline in the system",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The timeline id to play",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.SystemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/timelines": {
             "get": {
                 "description": "List all timelines in the system",

@@ -50,11 +50,11 @@ func NewRouter(apiService Service) http.Handler {
 
 		//	Run or stop a timeline
 		r.Route("/timeline", func(r chi.Router) {
-			r.Post("/run", apiService.ShowUI)              // Run a random timeline
-			r.Post("/run/{id}", apiService.ShowUI)         // Run a specific timeline
-			r.Post("/run/random/{tag}", apiService.ShowUI) // Run a random timeline in a tag
-			r.Post("/stop", apiService.ShowUI)             // Stop all running timelines
-			r.Post("/stop/{id}", apiService.ShowUI)        // Stop a specific timeline
+			r.Post("/run", apiService.ShowUI)                   // Run a random timeline
+			r.Post("/run/{id}", apiService.RequestTimelinePlay) // Run a specific timeline
+			r.Post("/run/random/{tag}", apiService.ShowUI)      // Run a random timeline in a tag
+			r.Post("/stop", apiService.ShowUI)                  // Stop all running timelines
+			r.Post("/stop/{id}", apiService.ShowUI)             // Stop a specific timeline
 		})
 	})
 
