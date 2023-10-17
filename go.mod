@@ -3,6 +3,7 @@ module github.com/danesparza/fxpixel
 go 1.20
 
 require (
+	github.com/Jon-Bright/ledctl v0.0.0-20220811175751-98f2a0ba0a4b
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
@@ -20,7 +21,6 @@ require (
 )
 
 require (
-	github.com/Jon-Bright/ledctl v0.0.0-20220811175751-98f2a0ba0a4b // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
@@ -68,3 +68,5 @@ require (
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
 )
+
+replace github.com/Jon-Bright/ledctl v0.0.0-20220811175751-98f2a0ba0a4b => github.com/danesparza/ledctl v1.0.0
