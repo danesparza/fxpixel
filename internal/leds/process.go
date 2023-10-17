@@ -154,7 +154,13 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 	}
 
 	//	Process the timeline
-	log.Debug().Str("ProcessID", req.ProcessID).Msg("Processing timeline")
+	log.Debug().
+		Str("ProcessID", req.ProcessID).
+		Int("GPIO_pin", systemConfig.GPIO).
+		Int("LEDs", systemConfig.LEDs).
+		Str("Pixel_order", systemConfig.PixelOrder).
+		Int("Number_of_colors", systemConfig.NumberOfColors).
+		Msg("Processing timeline")
 
 	//	First, see if the timeline has a GPIO port set on it.
 	if req.RequestedTimeline.GPIO.Valid == true || req.RequestedTimeline.GPIO.Int32 != 0 {
