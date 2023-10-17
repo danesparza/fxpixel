@@ -20,8 +20,10 @@ require (
 )
 
 require (
+	github.com/Jon-Bright/ledctl v0.0.0-20220811175751-98f2a0ba0a4b // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect

@@ -2,7 +2,7 @@ package leds
 
 import (
 	"context"
-	"database/sql"
+	"github.com/Jon-Bright/ledctl/pixarray"
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	stepType "github.com/danesparza/fxpixel/internal/data/const/step"
@@ -19,6 +19,15 @@ type PlayTimelineRequest struct {
 type timelineProcessMap struct {
 	m       map[string]func()
 	rwMutex sync.RWMutex
+}
+
+// StepProcessor encapsulates the core config for processing a step
+type StepProcessor struct {
+	GPIO           int
+	LEDs           int
+	PixelOrder     string
+	NumberOfColors int
+	PixArray       *pixarray.PixArray
 }
 
 // BackgroundProcess encapsulates background processing operations
@@ -120,17 +129,37 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 		return
 	}
 
+	//	Spin up a strip:
+	pixels, err := NewStrip( // Take the defaults for most things ...
+		systemConfig.LEDs,                               // Set the number of LEDs
+		WithGPIOPIn(systemConfig.GPIO),                  // Set the GPIO pin
+		WithPixelOrder(systemConfig.PixelOrder),         // Set the pixel order
+		WithNumberOfColors(systemConfig.NumberOfColors), // Set the number of colors
+	)
+	if err != nil {
+		log.Err(err).Msg("Problem creating strip")
+		return
+	}
+
+	//	Create a new pixel array
+	arr := pixarray.NewPixArray(systemConfig.LEDs, systemConfig.NumberOfColors, pixels)
+
+	//	Set the defaults for the StepProcessor:
+	sp := StepProcessor{
+		GPIO:           systemConfig.GPIO,
+		LEDs:           systemConfig.LEDs,
+		PixelOrder:     systemConfig.PixelOrder,
+		NumberOfColors: systemConfig.NumberOfColors,
+		PixArray:       arr,
+	}
+
 	//	Process the timeline
 	log.Debug().Str("ProcessID", req.ProcessID).Msg("Processing timeline")
 
 	//	First, see if the timeline has a GPIO port set on it.
-	if req.RequestedTimeline.GPIO.Valid == false || req.RequestedTimeline.GPIO.Int32 == 0 {
-		//	If it doesn't have the information
-		//	Grab the default and use that.
-		req.RequestedTimeline.GPIO = sql.NullInt32{
-			Int32: int32(systemConfig.GPIO),
-			Valid: true,
-		}
+	if req.RequestedTimeline.GPIO.Valid == true || req.RequestedTimeline.GPIO.Int32 != 0 {
+		//	If so, use that information:
+		sp.GPIO = int(req.RequestedTimeline.GPIO.Int32)
 	}
 
 	//	Keep a channel state map:
@@ -192,7 +221,7 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: sequence")
 
 				case effect.Solid:
-					ProcessSolidEffect(step)
+					sp.ProcessSolidEffect(step)
 
 					//	Sleep for the time specified
 					//	(this has the effect of showing the color for this amount of time)

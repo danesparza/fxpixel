@@ -1,5 +1,5 @@
 /* Default config */
-insert into system_config(gpio, leds) values (18, 5);
+insert into system_config(gpio, leds, pixel_order, number_of_colors) values (18, 5, 'GRBW', 4);
 
 /* Initial step types */
 INSERT INTO timeline_step_type (id, step_type) VALUES (1, 'effect');

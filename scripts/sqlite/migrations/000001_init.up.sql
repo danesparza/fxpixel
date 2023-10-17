@@ -4,8 +4,10 @@ PRAGMA foreign_keys = ON;
 
 create table system_config
 (
-    gpio integer not null,
-    leds integer not null
+    gpio             integer not null,
+    leds             integer not null,
+    pixel_order      text not null,
+    number_of_colors integer not null
 );
 
 create table timeline

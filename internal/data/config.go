@@ -11,7 +11,7 @@ func (a appDataService) GetSystemConfig(ctx context.Context) (SystemConfig, erro
 
 	retval := SystemConfig{}
 
-	query := `select gpio, leds from system_config limit 1;`
+	query := `select gpio, leds, pixel_order, number_of_colors from system_config limit 1;`
 
 	stmt, err := a.DB.PreparexContext(ctx, query)
 	if err != nil {
@@ -31,7 +31,7 @@ func (a appDataService) GetSystemConfig(ctx context.Context) (SystemConfig, erro
 
 	for rows.Next() {
 
-		if err := rows.Scan(&retval.GPIO, &retval.LEDs); err != nil {
+		if err := rows.Scan(&retval.GPIO, &retval.LEDs, &retval.PixelOrder, &retval.NumberOfColors); err != nil {
 			return retval, fmt.Errorf("problem reading into struct: %v", err)
 		}
 

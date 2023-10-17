@@ -9,8 +9,10 @@ import (
 
 // SystemConfig represents the system configuration information
 type SystemConfig struct {
-	GPIO int `json:"gpio"`
-	LEDs int `json:"leds"`
+	GPIO           int    `json:"gpio"`
+	LEDs           int    `json:"leds"`
+	PixelOrder     string `json:"pixel_order"`
+	NumberOfColors int    `json:"number_of_colors"`
 }
 
 // Timeline represents a series of event frames to be shown in order
