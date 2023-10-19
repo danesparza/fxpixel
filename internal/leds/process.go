@@ -2,6 +2,8 @@ package leds
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"github.com/Jon-Bright/ledctl/pixarray"
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
@@ -81,6 +83,27 @@ func (bp *BackgroundProcess) HandleAndProcess(systemctx context.Context) {
 			}
 
 			//	Reset the strip to all off:
+			log.Debug().Str("ProcessID", stopTL).Msg("Resetting strip to off")
+			go bp.StartTimelinePlay(systemctx, PlayTimelineRequest{
+				ProcessID: fmt.Sprintf("Stopping_%v", stopTL),
+				RequestedTimeline: data.Timeline{
+					Steps: []data.TimelineStep{
+						{
+							ID:     "StopStep",
+							Type:   stepType.Effect,
+							Effect: effect.Solid,
+							Time:   sql.NullInt32{Int32: 1, Valid: true},
+							MetaInfo: data.SolidMeta{Color: data.MetaColor{
+								R: 0,
+								G: 0,
+								B: 0,
+								W: 0,
+							}},
+							Number: 0,
+						},
+					},
+				},
+			})
 
 			bp.PlayingTimelines.rwMutex.Unlock()
 
@@ -103,6 +126,27 @@ func (bp *BackgroundProcess) HandleAndProcess(systemctx context.Context) {
 			}
 
 			//	Reset the strip to all off:
+			log.Debug().Msg("Resetting strip to off")
+			go bp.StartTimelinePlay(systemctx, PlayTimelineRequest{
+				ProcessID: "Stopping_all",
+				RequestedTimeline: data.Timeline{
+					Steps: []data.TimelineStep{
+						{
+							ID:     "StopStep",
+							Type:   stepType.Effect,
+							Effect: effect.Solid,
+							Time:   sql.NullInt32{Int32: 1, Valid: true},
+							MetaInfo: data.SolidMeta{Color: data.MetaColor{
+								R: 0,
+								G: 0,
+								B: 0,
+								W: 0,
+							}},
+							Number: 0,
+						},
+					},
+				},
+			})
 
 			bp.PlayingTimelines.rwMutex.Unlock()
 
