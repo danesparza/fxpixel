@@ -85,6 +85,67 @@
                 }
             }
         },
+        "/timeline/stop": {
+            "post": {
+                "description": "Stops all timeline 'play' processes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Stops all timeline 'play' processes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.SystemResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/timeline/stop/{pid}": {
+            "post": {
+                "description": "Stops a specific timeline 'play' process",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Stops a specific timeline 'play' process",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The process id to stop",
+                        "name": "pid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.SystemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/timelines": {
             "get": {
                 "description": "List all timelines in the system",

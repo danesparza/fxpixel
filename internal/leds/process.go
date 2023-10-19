@@ -79,6 +79,9 @@ func (bp *BackgroundProcess) HandleAndProcess(systemctx context.Context) {
 				//	Remove ourselves from the map and exit
 				delete(bp.PlayingTimelines.m, stopTL)
 			}
+
+			//	Reset the strip to all off:
+
 			bp.PlayingTimelines.rwMutex.Unlock()
 
 		case <-bp.StopAllTimelines:
@@ -98,6 +101,8 @@ func (bp *BackgroundProcess) HandleAndProcess(systemctx context.Context) {
 				//	https://golang.org/doc/effective_go#for )
 				delete(bp.PlayingTimelines.m, stopTL)
 			}
+
+			//	Reset the strip to all off:
 
 			bp.PlayingTimelines.rwMutex.Unlock()
 

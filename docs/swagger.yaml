@@ -129,6 +129,46 @@ paths:
       summary: Plays a timeline in the system
       tags:
       - process
+  /timeline/stop:
+    post:
+      consumes:
+      - application/json
+      description: Stops all timeline 'play' processes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+      summary: Stops all timeline 'play' processes
+      tags:
+      - process
+  /timeline/stop/{pid}:
+    post:
+      consumes:
+      - application/json
+      description: Stops a specific timeline 'play' process
+      parameters:
+      - description: The process id to stop
+        in: path
+        name: pid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SystemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stops a specific timeline 'play' process
+      tags:
+      - process
   /timelines:
     get:
       consumes:

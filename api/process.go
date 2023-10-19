@@ -53,3 +53,65 @@ func (service Service) RequestTimelinePlay(rw http.ResponseWriter, req *http.Req
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(rw).Encode(response)
 }
+
+// RequestTimelineStop godoc
+// @Summary Stops a specific timeline 'play' process
+// @Description Stops a specific timeline 'play' process
+// @Tags process
+// @Accept  json
+// @Produce  json
+// @Param pid path string true "The process id to stop"
+// @Success 200 {object} api.SystemResponse
+// @Failure 400 {object} api.ErrorResponse
+// @Router /timeline/stop/{pid} [post]
+func (service Service) RequestTimelineStop(rw http.ResponseWriter, req *http.Request) {
+
+	//	Get the id from the url (if it's blank, return an error)
+	timelinepid := chi.URLParam(req, "pid")
+	if timelinepid == "" {
+		err := fmt.Errorf("requires a processid of a process to stop")
+		sendErrorResponse(rw, err, http.StatusBadRequest)
+		return
+	}
+
+	//	Send to the channel:
+	service.StopTimeline <- timelinepid
+
+	log.Debug().Str("pid", timelinepid).Msg("Requesting timeline process stop")
+
+	//	Create our response and send information back:
+	response := SystemResponse{
+		Message: "Timeline stopping",
+		Data:    timelinepid,
+	}
+
+	//	Serialize to JSON & return the response:
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(response)
+}
+
+// RequestAllTimelinesStop godoc
+// @Summary Stops all timeline 'play' processes
+// @Description Stops all timeline 'play' processes
+// @Tags process
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} api.SystemResponse
+// @Router /timeline/stop [post]
+func (service Service) RequestAllTimelinesStop(rw http.ResponseWriter, req *http.Request) {
+
+	//	Send to the channel:
+	service.StopAllTimelines <- true
+
+	log.Debug().Msg("Requesting all timeline processes stop")
+
+	//	Create our response and send information back:
+	response := SystemResponse{
+		Message: "All Timelines stopping",
+		Data:    ".",
+	}
+
+	//	Serialize to JSON & return the response:
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(rw).Encode(response)
+}
