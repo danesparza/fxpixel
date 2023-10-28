@@ -224,6 +224,7 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 	//var wg sync.WaitGroup
 
 	//	Iterate through each step
+loopstart:
 	for _, step := range req.RequestedTimeline.Steps {
 
 		select {
@@ -241,6 +242,9 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 			case stepType.Loop:
 				//	Get the loop information and process the loop:
 				log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing loop")
+
+				//	Go to the loopstart label
+				goto loopstart
 
 			case stepType.Trigger:
 				//	Get the trigger information and process the trigger:

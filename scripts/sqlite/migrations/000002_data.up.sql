@@ -9,6 +9,7 @@ INSERT INTO timeline_step_type (id, step_type) VALUES (4, 'trigger');
 INSERT INTO timeline_step_type (id, step_type) VALUES (5, 'loop');
 
 /* Initial effect types */
+INSERT INTO timeline_step_effect_type (id, effect_type) VALUES (0, 'unknown');
 INSERT INTO timeline_step_effect_type (id, effect_type) VALUES (1, 'solid');
 INSERT INTO timeline_step_effect_type (id, effect_type) VALUES (2, 'fade');
 INSERT INTO timeline_step_effect_type (id, effect_type) VALUES (3, 'gradient');
