@@ -9,6 +9,7 @@ import (
 	"github.com/danesparza/fxpixel/internal/data/const/effect"
 	stepType "github.com/danesparza/fxpixel/internal/data/const/step"
 	"github.com/rs/zerolog/log"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -251,12 +252,27 @@ loopstart:
 				log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing trigger")
 
 			case stepType.Sleep:
-				//	Get the sleep information and pause here
-				log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing sleep")
+				//	Sleep for the time specified
+				//	(this has the effect of showing the color for this amount of time)
+				select {
+				case <-time.After(time.Duration(step.Time.Int32) * time.Millisecond):
+					continue
+				case <-ctx.Done():
+					return
+				}
 
 			case stepType.RandomSleep:
-				//	Get the random sleep parameters and pause here
-				log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing random sleep")
+				//	Calculate our sleep time
+				sleepTime := rand.Intn(int(step.Time.Int32)) //	Calculate sleep time from the passed maximum time in the step
+
+				//	Sleep for the time specified
+				//	(this has the effect of showing the color for this amount of time)
+				select {
+				case <-time.After(time.Duration(sleepTime) * time.Millisecond):
+					continue
+				case <-ctx.Done():
+					return
+				}
 
 			case stepType.Effect:
 				//	Find the effect type and process it.
@@ -280,7 +296,7 @@ loopstart:
 					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: knight rider")
 
 				case effect.Lightning:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: lightning")
+					sp.ProcessLightningEffect(step)
 
 				case effect.Rainbow:
 					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: rainbow")

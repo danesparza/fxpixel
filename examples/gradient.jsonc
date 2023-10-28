@@ -21,9 +21,7 @@
          "effect":"Solid",
          "time":1000,
          "meta-info":{
-            "color":{
-
-            }
+            "color":{}
          },
          "number":2
       }

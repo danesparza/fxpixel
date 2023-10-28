@@ -1,10 +1,17 @@
 {
    "enabled":true,
-   "name":"TL test lightning",
+   "name":"TL test fixed lightning",
    "steps":[
       {
          "type":"Effect",
          "effect":"Lightning",
+         "meta-info":{
+            "bursts":3,
+            "burst-type":"fixed",
+            "burst-spacing":100,
+            "burst-length":300,
+            "burst-brightness":128
+         },
          "number":1
       },
       {
