@@ -11,10 +11,10 @@ import (
 // ProcessSolidEffect processes the passed solid effect meta
 func (sp StepProcessor) ProcessSolidEffect(step data.TimelineStep) error {
 
-	//	Convert the solid meta information:
+	//	Convert the meta information:
 	meta := step.MetaInfo.(data.SolidMeta)
 
-	//	For now, just log the meta information we have:
+	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
 		Int32("time", step.Time.Int32).
@@ -44,10 +44,10 @@ func (sp StepProcessor) ProcessSolidEffect(step data.TimelineStep) error {
 // ProcessGradientEffect processes the passed gradient effect meta
 func (sp StepProcessor) ProcessGradientEffect(step data.TimelineStep) error {
 
-	//	Convert the gradient meta information:
+	//	Convert the meta information:
 	meta := step.MetaInfo.(data.GradientMeta)
 
-	//	For now, just log the meta information we have:
+	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
 		Int32("time", step.Time.Int32).
@@ -78,7 +78,7 @@ func (sp StepProcessor) ProcessGradientEffect(step data.TimelineStep) error {
 // ProcessLightningEffect processes the passed lightning effect meta
 func (sp StepProcessor) ProcessLightningEffect(step data.TimelineStep) error {
 
-	//	Convert the gradient meta information:
+	//	Convert the meta information:
 	meta := step.MetaInfo.(data.LightningMeta)
 
 	//"type": "effect",
@@ -125,7 +125,7 @@ func (sp StepProcessor) ProcessLightningEffect(step data.TimelineStep) error {
 	//	Create an 'off' pixel (since we need to flash)
 	loff := pixarray.Pixel{}
 
-	//	For now, just log the meta information we have:
+	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
 		Int32("time", step.Time.Int32).

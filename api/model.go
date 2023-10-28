@@ -68,4 +68,5 @@ type TriggerMeta struct {
 	Verb    string   `json:"verb,omitempty"`
 	URL     string   `json:"url"`
 	Headers []string `json:"headers,omitempty"`
+	Body    []byte   `json:"body,omitempty"`
 }

@@ -38,43 +38,44 @@ type TimelineStep struct {
 }
 
 type MetaColor struct {
-	R int `json:"R,omitempty"`
-	G int `json:"G,omitempty"`
-	B int `json:"B,omitempty"`
-	W int `json:"W,omitempty"`
+	R int `json:"R,omitempty"` // Red brightness level
+	G int `json:"G,omitempty"` // Green brightness level
+	B int `json:"B,omitempty"` // Blue brightness level
+	W int `json:"W,omitempty"` // White brightness level
 }
 
 type SolidMeta struct {
-	Color MetaColor `json:"color"`
+	Color MetaColor `json:"color"` // Color indicates what MetaColor to display
 }
 
 type FadeMeta struct {
-	Color MetaColor `json:"color"`
+	Color MetaColor `json:"color"` // Color indicates what color to fade to
 }
 
 type GradientMeta struct {
-	StartColor MetaColor `json:"start-color"`
-	EndColor   MetaColor `json:"end-color"`
+	StartColor MetaColor `json:"start-color"` // StartColor indicates the first color in the gradient
+	EndColor   MetaColor `json:"end-color"`   // EndColor indicates the second color in the gradient
 }
 
 type SequenceMeta struct {
-	Sequence []MetaColor `json:"sequence"`
+	Sequence []MetaColor `json:"sequence"` // Sequence defines a repeating array of colors
 }
 
 type ZipMeta struct {
-	Color MetaColor `json:"color"`
+	Color MetaColor `json:"color"` // Color indicates what color to 'zip'
 }
 
 type LightningMeta struct {
-	Bursts          int    `json:"bursts,omitempty"`
-	BurstType       string `json:"burst-type"`
-	BurstSpacing    int    `json:"burst-spacing,omitempty"`
-	BurstLength     int    `json:"burst-length,omitempty"`
-	BurstBrightness int    `json:"burst-brightness,omitempty"`
+	Bursts          int    `json:"bursts,omitempty"`           // Bursts indicates the number of bursts to fire in a single lightning effect
+	BurstType       string `json:"burst-type"`                 // BurstType can be 'fixed' or 'random'.  Defaults to random
+	BurstSpacing    int    `json:"burst-spacing,omitempty"`    // BurstSpacing indicates how much time (in ms) should exist between bursts
+	BurstLength     int    `json:"burst-length,omitempty"`     // BurstLength indicates how long each flash should show
+	BurstBrightness int    `json:"burst-brightness,omitempty"` // BurstBrightness indicates how bright each flash is
 }
 
 type TriggerMeta struct {
-	Verb    string   `json:"verb,omitempty"`
-	URL     string   `json:"url"`
-	Headers []string `json:"headers,omitempty"`
+	Verb    string   `json:"verb,omitempty"`    // Verb indicates the HTTP verb to use.  Defaults to 'POST'
+	URL     string   `json:"url"`               // URL indicates what url should be used
+	Headers []string `json:"headers,omitempty"` // Headers indicates what HTTP headers should be passed
+	Body    []byte   `json:"body,omitempty"`    // Body indicates what HTTP body should be passed.  Defaults to empty
 }

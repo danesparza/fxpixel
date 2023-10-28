@@ -248,8 +248,7 @@ loopstart:
 				goto loopstart
 
 			case stepType.Trigger:
-				//	Get the trigger information and process the trigger:
-				log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing trigger")
+				sp.ProcessTrigger(step)
 
 			case stepType.Sleep:
 				//	Sleep for the time specified

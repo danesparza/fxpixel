@@ -118,6 +118,14 @@ func TimelineToApi(tl data.Timeline) Timeline {
 		case step.Sleep:
 		case step.RandomSleep:
 		case step.Loop:
+		case step.Trigger:
+			md := item.MetaInfo.(data.TriggerMeta)
+			newStep.MetaInfo = TriggerMeta{
+				Verb:    md.Verb,
+				URL:     md.URL,
+				Headers: md.Headers,
+				Body:    md.Body,
+			}
 		default:
 		}
 
@@ -199,6 +207,10 @@ func ApiToTimeline(tl Timeline) data.Timeline {
 		case step.Sleep:
 		case step.RandomSleep:
 		case step.Loop:
+		case step.Trigger:
+			em := data.TriggerMeta{}
+			json.Unmarshal([]byte(jsonString), &em)
+			newStep.MetaInfo = em
 		default:
 		}
 
