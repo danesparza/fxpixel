@@ -1,0 +1,31 @@
+{
+   "enabled":true,
+   "name":"TL test gradient",
+   "steps":[
+      {
+         "type":"Effect",
+         "effect":"Gradient",
+         "time":5000,
+         "meta-info":{
+            "start-color":{
+               "W":128
+            },
+            "end-color":{
+               "B":128
+            }
+         },
+         "number":1
+      },
+      {
+         "type":"Effect",
+         "effect":"Solid",
+         "time":1000,
+         "meta-info":{
+            "color":{
+
+            }
+         },
+         "number":2
+      }
+   ]
+}

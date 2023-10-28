@@ -265,7 +265,16 @@ loopstart:
 					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: fade")
 
 				case effect.Gradient:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: gradient")
+					sp.ProcessGradientEffect(step)
+
+					//	Sleep for the time specified
+					//	(this has the effect of showing the gradient for this amount of time)
+					select {
+					case <-time.After(time.Duration(step.Time.Int32) * time.Millisecond):
+						continue
+					case <-ctx.Done():
+						return
+					}
 
 				case effect.KnightRider:
 					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: knight rider")

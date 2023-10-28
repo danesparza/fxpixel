@@ -1,0 +1,52 @@
+{
+  "enabled": true,
+  "name": "TL test loop",
+  "steps": [
+    {
+      "type": "Effect",
+      "effect": "Solid",
+      "time": 3000,
+      "meta-info": {
+        "color": {
+          "W": 128
+        }
+      },
+      "number": 1
+    },
+    {
+      "type": "Effect",
+      "effect": "Solid",
+      "time": 4000,
+      "meta-info": {
+        "color": {
+          "B": 128
+        }
+      },
+      "number": 2
+    },
+    {
+      "type": "Effect",
+      "effect": "Solid",
+      "time": 5000,
+      "meta-info": {
+        "color": {
+          "G": 128
+        }
+      },
+      "number": 3
+    },
+    {
+      "type": "Effect",
+      "effect": "Solid",
+      "time": 5000,
+      "meta-info": {
+        "color": {}
+      },
+      "number": 4
+    },
+    {
+      "type": "Loop",
+      "number": 5
+    }
+  ]
+}
