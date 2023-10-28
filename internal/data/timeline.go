@@ -195,6 +195,10 @@ func (a appDataService) GetTimeline(ctx context.Context, id string) (Timeline, e
 			case step.Sleep:
 			case step.RandomSleep:
 			case step.Loop:
+			case step.Trigger:
+				em := TriggerMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				tlStep.MetaInfo = em
 			default:
 			}
 
@@ -338,6 +342,10 @@ func (a appDataService) GetAllTimelines(ctx context.Context) ([]Timeline, error)
 			case step.Sleep:
 			case step.RandomSleep:
 			case step.Loop:
+			case step.Trigger:
+				em := TriggerMeta{}
+				json.Unmarshal([]byte(jsonString), &em)
+				tlStep.MetaInfo = em
 			default:
 			}
 
