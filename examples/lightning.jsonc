@@ -9,12 +9,24 @@
       },
       {
          "type":"randomsleep",
-         "time":8000,
+         "time":2000,
          "number":2
       },
       {
-         "type":"loop",
+         "type":"Trigger",
+         "meta-info":{
+            "url":"http://192.168.20.3:3030/v1/audio/play/random/thunder"
+         },
          "number":3
+      },
+      {
+         "type":"randomsleep",
+         "time":8000,
+         "number":4
+      },
+      {
+         "type":"loop",
+         "number":5
       }
    ]
 }
