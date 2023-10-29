@@ -277,7 +277,7 @@ loopstart:
 				//	Find the effect type and process it.
 				switch step.Effect {
 				case effect.Fade:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: fade")
+					sp.ProcessFadeEffect(step)
 
 				case effect.Gradient:
 					sp.ProcessGradientEffect(step)

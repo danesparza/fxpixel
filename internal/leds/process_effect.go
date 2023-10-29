@@ -1,6 +1,7 @@
 package leds
 
 import (
+	"github.com/Jon-Bright/ledctl/effects"
 	"github.com/Jon-Bright/ledctl/pixarray"
 	"github.com/danesparza/fxpixel/internal/data"
 	"github.com/rs/zerolog/log"
@@ -191,6 +192,47 @@ func (sp StepProcessor) ProcessSequenceEffect(step data.TimelineStep) error {
 	err := sp.PixArray.Write()
 	if err != nil {
 		log.Err(err).Msg("Problem writing to strip")
+	}
+
+	return nil
+}
+
+// ProcessFadeEffect processes the passed fade effect meta
+func (sp StepProcessor) ProcessFadeEffect(step data.TimelineStep) error {
+
+	//	Convert the meta information:
+	meta := step.MetaInfo.(data.FadeMeta)
+
+	//	Log the meta information we have:
+	log.Debug().
+		Str("stepid", step.ID).
+		Int32("time", step.Time.Int32).
+		Any("color", meta.Color).
+		Msg("Processing effect: fade")
+
+	var d time.Duration
+
+	fade := effects.NewFade(time.Duration(step.Time.Int32)*time.Millisecond, pixarray.Pixel{
+		R: meta.Color.R,
+		G: meta.Color.G,
+		B: meta.Color.B,
+		W: meta.Color.W,
+	})
+
+	fade.Start(sp.PixArray, time.Now())
+
+	for {
+		d = fade.NextStep(sp.PixArray, time.Now())
+		err := sp.PixArray.Write()
+		if err != nil {
+			log.Err(err).Msg("Problem writing to strip")
+		}
+
+		//	This is a weird way to signal this,
+		//	but a duration of 0 means the fade is 'done'
+		if d == 0 {
+			break
+		}
 	}
 
 	return nil
