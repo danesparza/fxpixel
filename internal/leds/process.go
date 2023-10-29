@@ -292,7 +292,9 @@ loopstart:
 					}
 
 				case effect.KnightRider:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: knight rider")
+					// This will continue indefinitely.  We need to come up with a
+					// clean way to signal this to stop.  (Perhaps use context?)
+					sp.ProcessKnightRiderEffect(ctx, step)
 
 				case effect.Lightning:
 					sp.ProcessLightningEffect(step)

@@ -1,6 +1,7 @@
 package leds
 
 import (
+	"context"
 	"github.com/Jon-Bright/ledctl/effects"
 	"github.com/Jon-Bright/ledctl/pixarray"
 	"github.com/danesparza/fxpixel/internal/data"
@@ -223,6 +224,38 @@ func (sp StepProcessor) ProcessFadeEffect(step data.TimelineStep) error {
 
 	for {
 		d = fade.NextStep(sp.PixArray, time.Now())
+		err := sp.PixArray.Write()
+		if err != nil {
+			log.Err(err).Msg("Problem writing to strip")
+		}
+
+		//	This is a weird way to signal this,
+		//	but a duration of 0 means the fade is 'done'
+		if d == 0 {
+			break
+		}
+	}
+
+	return nil
+}
+
+// ProcessKnightRiderEffect processes the passed knight rider effect meta
+func (sp StepProcessor) ProcessKnightRiderEffect(ctx context.Context, step data.TimelineStep) error {
+
+	//	Log the meta information we have:
+	log.Debug().
+		Str("stepid", step.ID).
+		Int32("time", step.Time.Int32).
+		Msg("Processing effect: fade")
+
+	var d time.Duration
+
+	kr := effects.NewKnightRider(1*time.Second, 5)
+
+	kr.Start(sp.PixArray, time.Now())
+
+	for {
+		d = kr.NextStep(sp.PixArray, time.Now())
 		err := sp.PixArray.Write()
 		if err != nil {
 			log.Err(err).Msg("Problem writing to strip")

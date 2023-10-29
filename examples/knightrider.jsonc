@@ -1,0 +1,11 @@
+{
+   "enabled":true,
+   "name":"TL test knight rider",
+   "steps":[
+      {
+         "type":"Effect",
+         "effect":"KnightRider",
+         "number":1
+      }
+   ]
+}
