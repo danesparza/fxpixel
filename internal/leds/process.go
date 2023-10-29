@@ -301,7 +301,16 @@ loopstart:
 					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: rainbow")
 
 				case effect.Sequence:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: sequence")
+					sp.ProcessSequenceEffect(step)
+
+					//	Sleep for the time specified
+					//	(this has the effect of showing the sequence for this amount of time)
+					select {
+					case <-time.After(time.Duration(step.Time.Int32) * time.Millisecond):
+						continue
+					case <-ctx.Done():
+						return
+					}
 
 				case effect.Solid:
 					sp.ProcessSolidEffect(step)

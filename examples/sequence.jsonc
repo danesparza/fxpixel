@@ -1,0 +1,36 @@
+{
+   "enabled":true,
+   "name":"TL test sequence",
+   "steps":[
+      {
+         "type":"Effect",
+         "effect":"Sequence",
+         "time":5000,
+         "meta-info":{
+            "sequence":[
+               {
+                  "R":128
+               },
+               {
+                  "G":128
+               },
+               {
+                  "W":128
+               }
+            ]
+         },
+         "number":1
+      },
+      {
+         "type":"Effect",
+         "effect":"Solid",
+         "time":1000,
+         "meta-info":{
+            "color":{
+
+            }
+         },
+         "number":2
+      }
+   ]
+}

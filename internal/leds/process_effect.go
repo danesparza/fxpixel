@@ -155,3 +155,43 @@ func (sp StepProcessor) ProcessLightningEffect(step data.TimelineStep) error {
 
 	return nil
 }
+
+// ProcessSequenceEffect processes the passed sequence effect meta
+func (sp StepProcessor) ProcessSequenceEffect(step data.TimelineStep) error {
+
+	//	Convert the meta information:
+	meta := step.MetaInfo.(data.SequenceMeta)
+
+	//	Log the meta information we have:
+	log.Debug().
+		Str("stepid", step.ID).
+		Int32("time", step.Time.Int32).
+		Any("sequence", meta.Sequence).
+		Msg("Processing effect: sequence")
+
+	var a Artist
+
+	//	Build the color sequence slice
+	colorSeq := [][]int{}
+	for _, color := range meta.Sequence {
+		colorSeq = append(colorSeq, []int{
+			color.R, color.G, color.B, color.W,
+		})
+	}
+
+	//	Create the sequence
+	a = &Sequence{
+		Colors: colorSeq,
+	}
+
+	//	Draw
+	a.Draw(sp.PixArray)
+
+	////	Write the data
+	err := sp.PixArray.Write()
+	if err != nil {
+		log.Err(err).Msg("Problem writing to strip")
+	}
+
+	return nil
+}
