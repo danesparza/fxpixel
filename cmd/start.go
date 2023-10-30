@@ -102,6 +102,7 @@ func handleSignals(ctx context.Context, sigs <-chan os.Signal, cancel context.Ca
 
 		log.Info().Msg("Shutting down ...")
 		cancel()
+		time.Sleep(1 * time.Second) // Allow cancel to propagate
 		os.Exit(0)
 	}
 }
