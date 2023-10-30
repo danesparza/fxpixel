@@ -218,12 +218,6 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 		sp.GPIO = int(req.RequestedTimeline.GPIO.Int32)
 	}
 
-	//	Keep a channel state map:
-	//channelState := map[int]byte{}
-
-	//	Our waitgroup (for sync'ing fade finishes)
-	//var wg sync.WaitGroup
-
 	//	Iterate through each step
 loopstart:
 	for _, step := range req.RequestedTimeline.Steps {
@@ -277,7 +271,7 @@ loopstart:
 				//	Find the effect type and process it.
 				switch step.Effect {
 				case effect.Fade:
-					sp.ProcessFadeEffect(step)
+					sp.ProcessFadeEffect(ctx, step)
 
 				case effect.Gradient:
 					sp.ProcessGradientEffect(step)
@@ -297,10 +291,10 @@ loopstart:
 					sp.ProcessKnightRiderEffect(ctx, step)
 
 				case effect.Lightning:
-					sp.ProcessLightningEffect(step)
+					sp.ProcessLightningEffect(ctx, step)
 
 				case effect.Rainbow:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: rainbow")
+					sp.ProcessRainbowEffect(ctx, step)
 
 				case effect.Sequence:
 					sp.ProcessSequenceEffect(step)

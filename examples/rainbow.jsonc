@@ -1,0 +1,11 @@
+{
+   "enabled":true,
+   "name":"TL test rainbow",
+   "steps":[
+      {
+         "type":"Effect",
+         "effect":"Rainbow",
+         "number":1
+      }
+   ]
+}

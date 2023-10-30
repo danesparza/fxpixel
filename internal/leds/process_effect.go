@@ -78,7 +78,7 @@ func (sp StepProcessor) ProcessGradientEffect(step data.TimelineStep) error {
 }
 
 // ProcessLightningEffect processes the passed lightning effect meta
-func (sp StepProcessor) ProcessLightningEffect(step data.TimelineStep) error {
+func (sp StepProcessor) ProcessLightningEffect(ctx context.Context, step data.TimelineStep) error {
 
 	//	Convert the meta information:
 	meta := step.MetaInfo.(data.LightningMeta)
@@ -142,17 +142,29 @@ func (sp StepProcessor) ProcessLightningEffect(step data.TimelineStep) error {
 	//	Cycle through our bursts
 	for b := 0; b < meta.Bursts; b++ {
 
-		//	Lightning flash
-		sp.PixArray.SetAll(ln)
-		sp.PixArray.Write()
-		time.Sleep(time.Duration(meta.BurstLength) * time.Millisecond)
+		select {
+		default:
 
-		//	Flash over
-		sp.PixArray.SetAll(loff)
-		sp.PixArray.Write()
+			//	Lightning flash
+			sp.PixArray.SetAll(ln)
+			sp.PixArray.Write()
+			time.Sleep(time.Duration(meta.BurstLength) * time.Millisecond)
 
-		//	Add burst spacing
-		time.Sleep(time.Duration(meta.BurstSpacing) * time.Millisecond)
+			//	Flash over
+			sp.PixArray.SetAll(loff)
+			sp.PixArray.Write()
+
+			//	Add burst spacing
+			time.Sleep(time.Duration(meta.BurstSpacing) * time.Millisecond)
+
+		case <-ctx.Done():
+			//	Reset all pixels:
+			sp.PixArray.SetAll(pixarray.Pixel{})
+			sp.PixArray.Write()
+
+			return nil
+		}
+
 	}
 
 	return nil
@@ -199,7 +211,7 @@ func (sp StepProcessor) ProcessSequenceEffect(step data.TimelineStep) error {
 }
 
 // ProcessFadeEffect processes the passed fade effect meta
-func (sp StepProcessor) ProcessFadeEffect(step data.TimelineStep) error {
+func (sp StepProcessor) ProcessFadeEffect(ctx context.Context, step data.TimelineStep) error {
 
 	//	Convert the meta information:
 	meta := step.MetaInfo.(data.FadeMeta)
@@ -222,17 +234,28 @@ func (sp StepProcessor) ProcessFadeEffect(step data.TimelineStep) error {
 
 	fade.Start(sp.PixArray, time.Now())
 
+	//	Create a ticker to process work:
+	ticker := time.NewTicker(1 * time.Millisecond)
 	for {
-		d = fade.NextStep(sp.PixArray, time.Now())
-		err := sp.PixArray.Write()
-		if err != nil {
-			log.Err(err).Msg("Problem writing to strip")
-		}
+		select {
+		case <-ticker.C:
+			d = fade.NextStep(sp.PixArray, time.Now())
+			err := sp.PixArray.Write()
+			if err != nil {
+				log.Err(err).Msg("Problem writing to strip")
+			}
 
-		//	This is a weird way to signal this,
-		//	but a duration of 0 means the fade is 'done'
-		if d == 0 {
-			break
+			//	This is a weird way to signal this,
+			//	but a duration of 0 means the fade is 'done'
+			if d == 0 {
+				break
+			}
+		case <-ctx.Done():
+			//	Reset all pixels:
+			sp.PixArray.SetAll(pixarray.Pixel{})
+			sp.PixArray.Write()
+
+			return nil
 		}
 	}
 
@@ -288,5 +311,31 @@ func (sp StepProcessor) ProcessRainbowEffect(ctx context.Context, step data.Time
 		Int32("time", step.Time.Int32).
 		Msg("Processing effect: rainbow")
 
-	return nil
+	var d time.Duration
+
+	rainbow := effects.NewRainbow(20 * time.Second)
+	rainbow.Start(sp.PixArray, time.Now())
+
+	//	Create a ticker to process work:
+	ticker := time.NewTicker(1 * time.Millisecond)
+	for {
+		select {
+		case <-ticker.C:
+			d = rainbow.NextStep(sp.PixArray, time.Now())
+			sp.PixArray.Write()
+
+			//	This is a weird way to signal this,
+			//	but a duration of 0 means the fade is 'done'
+			if d == 0 {
+				break
+			}
+
+		case <-ctx.Done():
+			//	Reset all pixels:
+			sp.PixArray.SetAll(pixarray.Pixel{})
+			sp.PixArray.Write()
+
+			return nil
+		}
+	}
 }
