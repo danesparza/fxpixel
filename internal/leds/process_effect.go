@@ -148,14 +148,24 @@ func (sp StepProcessor) ProcessLightningEffect(ctx context.Context, step data.Ti
 			//	Lightning flash
 			sp.PixArray.SetAll(ln)
 			sp.PixArray.Write()
-			time.Sleep(time.Duration(meta.BurstLength) * time.Millisecond)
 
-			//	Flash over
-			sp.PixArray.SetAll(loff)
-			sp.PixArray.Write()
+			select {
+			case <-time.After(time.Duration(meta.BurstLength) * time.Millisecond):
+				//	Flash over
+				sp.PixArray.SetAll(loff)
+				sp.PixArray.Write()
 
-			//	Add burst spacing
-			time.Sleep(time.Duration(meta.BurstSpacing) * time.Millisecond)
+				//	Add burst spacing
+				select {
+				case <-time.After(time.Duration(meta.BurstSpacing) * time.Millisecond):
+					continue
+				case <-ctx.Done():
+					return nil
+				}
+
+			case <-ctx.Done():
+				return nil
+			}
 
 		case <-ctx.Done():
 			//	Reset all pixels:
