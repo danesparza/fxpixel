@@ -245,6 +245,11 @@ loopstart:
 				sp.ProcessTrigger(step)
 
 			case stepType.Sleep:
+				log.Debug().
+					Str("stepid", step.ID).
+					Int32("steptime", step.Time.Int32).
+					Msg("Processing sleep")
+
 				//	Sleep for the time specified
 				//	(this has the effect of showing the color for this amount of time)
 				select {
@@ -257,6 +262,12 @@ loopstart:
 			case stepType.RandomSleep:
 				//	Calculate our sleep time
 				sleepTime := rand.Intn(int(step.Time.Int32)) //	Calculate sleep time from the passed maximum time in the step
+
+				log.Debug().
+					Str("stepid", step.ID).
+					Int32("steptime", step.Time.Int32).
+					Int("sleepTime", sleepTime).
+					Msg("Processing randomsleep")
 
 				//	Sleep for the time specified
 				//	(this has the effect of showing the color for this amount of time)

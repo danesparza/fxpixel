@@ -19,7 +19,7 @@ func (sp StepProcessor) ProcessSolidEffect(step data.TimelineStep) error {
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Any("color", meta.Color).
 		Msg("Processing effect: solid")
 
@@ -52,7 +52,7 @@ func (sp StepProcessor) ProcessGradientEffect(step data.TimelineStep) error {
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Any("startcolor", meta.StartColor).
 		Any("endcolor", meta.EndColor).
 		Msg("Processing effect: gradient")
@@ -130,7 +130,7 @@ func (sp StepProcessor) ProcessLightningEffect(ctx context.Context, step data.Ti
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Any("bursts", meta.Bursts).
 		Any("bursttype", meta.BurstType).
 		Any("bursttype", meta.BurstType).
@@ -189,7 +189,7 @@ func (sp StepProcessor) ProcessSequenceEffect(step data.TimelineStep) error {
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Any("sequence", meta.Sequence).
 		Msg("Processing effect: sequence")
 
@@ -229,7 +229,7 @@ func (sp StepProcessor) ProcessFadeEffect(ctx context.Context, step data.Timelin
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Any("color", meta.Color).
 		Msg("Processing effect: fade")
 
@@ -278,7 +278,7 @@ func (sp StepProcessor) ProcessKnightRiderEffect(ctx context.Context, step data.
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Msg("Processing effect: knightrider")
 
 	var d time.Duration
@@ -318,7 +318,7 @@ func (sp StepProcessor) ProcessRainbowEffect(ctx context.Context, step data.Time
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Msg("Processing effect: rainbow")
 
 	var d time.Duration
@@ -359,7 +359,7 @@ func (sp StepProcessor) ProcessZipEffect(ctx context.Context, step data.Timeline
 	//	Log the meta information we have:
 	log.Debug().
 		Str("stepid", step.ID).
-		Int32("time", step.Time.Int32).
+		Int32("steptime", step.Time.Int32).
 		Any("color", meta.Color).
 		Msg("Processing effect: zip")
 
