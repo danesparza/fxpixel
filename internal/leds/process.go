@@ -321,7 +321,7 @@ loopstart:
 					}
 
 				case effect.Zip:
-					log.Debug().Str("stepid", step.ID).Int32("time", step.Time.Int32).Msg("Processing effect: zip")
+					sp.ProcessZipEffect(ctx, step)
 
 				}
 

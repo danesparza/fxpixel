@@ -349,3 +349,57 @@ func (sp StepProcessor) ProcessRainbowEffect(ctx context.Context, step data.Time
 		}
 	}
 }
+
+// ProcessZipEffect processes the rainbow effect
+func (sp StepProcessor) ProcessZipEffect(ctx context.Context, step data.TimelineStep) error {
+
+	//	Convert the meta information:
+	meta := step.MetaInfo.(data.ZipMeta)
+
+	//	Log the meta information we have:
+	log.Debug().
+		Str("stepid", step.ID).
+		Int32("time", step.Time.Int32).
+		Any("color", meta.Color).
+		Msg("Processing effect: zip")
+
+	var d time.Duration
+
+	//	Use the time from the step, but default to 2 seconds if it's not set
+	zipDuration := int(step.Time.Int32)
+	if zipDuration == 0 {
+		zipDuration = 2000
+	}
+
+	zip := effects.NewZip(time.Duration(zipDuration)*time.Millisecond, pixarray.Pixel{
+		R: meta.Color.R,
+		G: meta.Color.G,
+		B: meta.Color.B,
+		W: meta.Color.W,
+	})
+
+	zip.Start(sp.PixArray, time.Now())
+
+	//	Create a ticker to process work:
+	ticker := time.NewTicker(1 * time.Millisecond)
+	for {
+		select {
+		case <-ticker.C:
+			d = zip.NextStep(sp.PixArray, time.Now())
+			sp.PixArray.Write()
+
+			//	This is a weird way to signal this,
+			//	but a duration of 0 means the fade is 'done'
+			if d == 0 {
+				break
+			}
+
+		case <-ctx.Done():
+			//	Reset all pixels:
+			sp.PixArray.SetAll(pixarray.Pixel{})
+			sp.PixArray.Write()
+
+			return nil
+		}
+	}
+}

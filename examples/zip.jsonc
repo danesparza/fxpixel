@@ -1,0 +1,40 @@
+{
+   "enabled":true,
+   "name":"TL test zip in and out",
+   "steps":[
+      {
+         "type":"Effect",
+         "effect":"Zip",
+         "time":2000,
+         "meta-info":{
+            "color":{
+               "B":128
+            }
+         },
+         "number":1
+      },
+      {
+         "type":"sleep",
+         "time":3000,
+         "number":2
+      },
+      {
+         "type":"Effect",
+         "effect":"Zip",
+         "time":2000,
+         "meta-info":{
+            "color":{}
+         },
+         "number":3
+      },
+      {
+         "type":"sleep",
+         "time":3000,
+         "number":4
+      },
+      {
+         "type":"loop",
+         "number": 5
+      }
+   ]
+}
