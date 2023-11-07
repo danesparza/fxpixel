@@ -105,7 +105,7 @@ jobs:
           path: /tmp/binaries
 
       - name: Install deploy tools
-        run: apt install gnupg dpkg-dev apt-utils
+        run: sudo apt-get install gnupg dpkg-dev apt-utils
 
 #      - name: Import secret key
 #        run:
