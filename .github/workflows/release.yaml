@@ -103,6 +103,7 @@ jobs:
         with:
           name: Release binaries
           path: /tmp/binaries
+          
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
@@ -110,7 +111,7 @@ jobs:
           chmod 600 ~/.ssh/package.key
           cat >>~/.ssh/config <<END
           Host packagehost
-            HostName $SSH_HOST
+            Hostname $SSH_HOST
             User $SSH_USER
             IdentityFile ~/.ssh/package.key
             StrictHostKeyChecking no
