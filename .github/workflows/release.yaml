@@ -108,7 +108,6 @@ jobs:
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_KEY" > ~/.ssh/package.key
-          cat ~/.ssh/package.key
           chmod 600 ~/.ssh/package.key
           cat >>~/.ssh/config <<END
           Host packagehost
@@ -123,14 +122,13 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Package pre-refresh step
-        run: cat ~/.ssh/config; 
-#        run: ssh packagehost /home/packagerepo/work/package-repo/ci-pre.sh
+        run: ssh packagehost /home/packagerepo/work/package-repo/ci-pre.sh
 
       - name: Copy artifact
-        run: scp ${DEBIAN_PACKAGE_NAME}.deb packagehost:/home/packagerepo/work/package-repo
+        run: scp /tmp/binaries/${DEBIAN_PACKAGE_NAME}.deb packagehost:/home/packagerepo/work/package-repo
 
       - name: Refresh packages
-        run: ssh packagehost /home/packagerepo/work/package-repo/ci-post.sh
+        run: ssh -tt packagehost /home/packagerepo/work/package-repo/ci-post.sh
 
       - name: Package publish
         run: ssh packagehost /home/packagerepo/work/package-repo/ci-post.sh
