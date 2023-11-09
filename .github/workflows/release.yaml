@@ -8,6 +8,9 @@ env:
   APP_VERSION: 1.0.${{github.run_number}}
   RELEASE_VERSION: v1.0.${{github.run_number}}
   PACKAGE_PATH: github.com/danesparza/fxpixel
+  SSH_USER: ${{ secrets.SSH_USER }}
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  SSH_HOST: ${{ secrets.SSH_HOST }}
 
 jobs:
   vulnerabilitycheck:
@@ -116,10 +119,8 @@ jobs:
             IdentityFile ~/.ssh/package.key
             StrictHostKeyChecking no
           END
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/package.key
 
       - name: Package pre-refresh step
         run: ssh packagehost /home/packagerepo/work/package-repo/ci-pre.sh
