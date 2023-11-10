@@ -121,10 +121,9 @@ jobs:
           END
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/package.key
-          ssh packagehost /home/packagerepo/work/package-repo/ci-pre.sh
 
-#      - name: Package pre-refresh step
-#        run: ssh packagehost /home/packagerepo/work/package-repo/ci-pre.sh
+      - name: Package pre-refresh step
+        run: ssh packagehost /home/packagerepo/work/package-repo/ci-pre.sh
 
       - name: Copy artifact
         run: scp /tmp/binaries/${DEBIAN_PACKAGE_NAME}.deb packagehost:/home/packagerepo/work/package-repo
