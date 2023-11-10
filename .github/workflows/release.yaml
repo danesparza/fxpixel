@@ -129,7 +129,7 @@ jobs:
         run: scp /tmp/binaries/${DEBIAN_PACKAGE_NAME}.deb packagehost:/home/packagerepo/work/package-repo
 
       - name: Refresh packages
-        run: ssh -tt packagehost /home/packagerepo/work/package-repo/ci-post.sh
+        run: ssh -tt packagehost /home/packagerepo/work/package-repo/ci-refresh.sh
 
       - name: Package publish
         run: ssh packagehost /home/packagerepo/work/package-repo/ci-post.sh
