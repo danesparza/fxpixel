@@ -391,7 +391,7 @@ func (sp StepProcessor) ProcessZipEffect(ctx context.Context, step data.Timeline
 			//	This is a weird way to signal this,
 			//	but a duration of 0 means the fade is 'done'
 			if d == 0 {
-				break
+				return nil
 			}
 
 		case <-ctx.Done():
