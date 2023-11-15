@@ -18,7 +18,7 @@ sudo apt update
 ```
 
 ### Step 2
-Now that the repo is installed, you can install one of the packages
+Now that the repo is installed, you can install the package
 ```
 sudo apt install fxpixel
 ```
