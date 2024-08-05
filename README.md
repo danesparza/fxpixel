@@ -1,24 +1,18 @@
 # fxpixel [![Build and release](https://github.com/danesparza/fxpixel/actions/workflows/release.yaml/badge.svg)](https://github.com/danesparza/fxpixel/actions/workflows/release.yaml)
 REST service for RGB(W) LED lighting effects on demand from Raspberry Pi. Made with ❤️ for makers, DIY craftsmen, and professional prop designers everywhere.
 
-## To install
-To install on a Raspberry Pi
+## Installation
+### Prerequisites
+Install Raspberry Pi OS.  For best results, use the [Raspberry Pi imager](https://www.raspberrypi.com/software/)
+and pick 'Raspberry Pi OS (other)' and then 'Raspberry Pi OS Lite (64-bit)'.
 
-### Step 1
-**Option 1:** Use the automated script to install the repo, the repo key and then update:
+Install the package repo (you only need to do this once per machine)
 ```
-wget https://danesparza.github.io/package-repo/prereq.sh -O - | sh
-```
-
-**Option 2:** I don't trust you.  I'll run the commands myself:
-```
-curl -s --compressed "https://danesparza.github.io/package-repo/KEY.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/package-repo.gpg >/dev/null
-sudo curl -s --compressed -o /etc/apt/sources.list.d/package-repo.list "https://danesparza.github.io/package-repo/package-repo.list"
-sudo apt update
+wget https://packages.cagedtornado.com/prereq.sh -O - | sh
 ```
 
-### Step 2
-Now that the repo is installed, you can install the package
+### Package installation
+Install the package
 ```
 sudo apt install fxpixel
 ```
