@@ -15,22 +15,14 @@
                   "G":128
                },
                {
+                  "B":128
+               },
+               {
                   "W":128
                }
             ]
          },
          "number":1
-      },
-      {
-         "type":"Effect",
-         "effect":"Solid",
-         "time":1000,
-         "meta-info":{
-            "color":{
-
-            }
-         },
-         "number":2
       }
    ]
 }

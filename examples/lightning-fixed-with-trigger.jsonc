@@ -1,0 +1,34 @@
+{
+  "enabled":true,
+  "name":"Fixed lightning with trigger",
+  "steps":[
+    {
+      "type":"Effect",
+      "effect":"Lightning",
+      "meta-info":{
+        "bursts":3,
+        "burst-type":"fixed",
+        "burst-spacing":50,
+        "burst-length":50,
+        "burst-brightness":128
+      },
+      "number":1
+    },
+    {
+      "type":"Trigger",
+      "meta-info":{
+        "url":"http://fx-1.iot:3030/v1/audio/play/random/thunder"
+      },
+      "number":2
+    },
+    {
+      "type":"randomsleep",
+      "time":30000,
+      "number":3
+    },
+    {
+      "type":"loop",
+      "number":4
+    }
+  ]
+}
