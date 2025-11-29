@@ -233,8 +233,6 @@ func (sp StepProcessor) ProcessFadeEffect(ctx context.Context, step data.Timelin
 		Any("color", meta.Color).
 		Msg("Processing effect: fade")
 
-	var d time.Duration
-
 	fade := effects.NewFade(time.Duration(step.Time.Int32)*time.Millisecond, pixarray.Pixel{
 		R: meta.Color.R,
 		G: meta.Color.G,
@@ -242,34 +240,7 @@ func (sp StepProcessor) ProcessFadeEffect(ctx context.Context, step data.Timelin
 		W: meta.Color.W,
 	})
 
-	fade.Start(sp.PixArray, time.Now())
-
-	//	Create a ticker to process work:
-	ticker := time.NewTicker(1 * time.Millisecond)
-	for {
-		select {
-		case <-ticker.C:
-			d = fade.NextStep(sp.PixArray, time.Now())
-			err := sp.PixArray.Write()
-			if err != nil {
-				log.Err(err).Msg("Problem writing to strip")
-			}
-
-			//	This is a weird way to signal this,
-			//	but a duration of 0 means the fade is 'done'
-			if d == 0 {
-				break
-			}
-		case <-ctx.Done():
-			//	Reset all pixels:
-			sp.PixArray.SetAll(pixarray.Pixel{})
-			sp.PixArray.Write()
-
-			return nil
-		}
-	}
-
-	return nil
+	return sp.runEffect(ctx, fade)
 }
 
 // ProcessKnightRiderEffect processes the knight rider effect
@@ -281,35 +252,9 @@ func (sp StepProcessor) ProcessKnightRiderEffect(ctx context.Context, step data.
 		Int32("steptime", step.Time.Int32).
 		Msg("Processing effect: knightrider")
 
-	var d time.Duration
-
 	kr := effects.NewKnightRider(1*time.Second, 5)
-	kr.Start(sp.PixArray, time.Now())
 
-	//	Create a ticker to process work:
-	ticker := time.NewTicker(1 * time.Millisecond)
-	for {
-		select {
-		case <-ticker.C:
-			d = kr.NextStep(sp.PixArray, time.Now())
-			err := sp.PixArray.Write()
-			if err != nil {
-				log.Err(err).Msg("Problem writing to strip")
-			}
-
-			//	This is a weird way to signal this,
-			//	but a duration of 0 means the fade is 'done'
-			if d == 0 {
-				break
-			}
-		case <-ctx.Done():
-			//	Reset all pixels:
-			sp.PixArray.SetAll(pixarray.Pixel{})
-			sp.PixArray.Write()
-
-			return nil
-		}
-	}
+	return sp.runEffect(ctx, kr)
 }
 
 // ProcessRainbowEffect processes the rainbow effect
@@ -321,33 +266,9 @@ func (sp StepProcessor) ProcessRainbowEffect(ctx context.Context, step data.Time
 		Int32("steptime", step.Time.Int32).
 		Msg("Processing effect: rainbow")
 
-	var d time.Duration
-
 	rainbow := effects.NewRainbow(20 * time.Second)
-	rainbow.Start(sp.PixArray, time.Now())
 
-	//	Create a ticker to process work:
-	ticker := time.NewTicker(1 * time.Millisecond)
-	for {
-		select {
-		case <-ticker.C:
-			d = rainbow.NextStep(sp.PixArray, time.Now())
-			sp.PixArray.Write()
-
-			//	This is a weird way to signal this,
-			//	but a duration of 0 means the fade is 'done'
-			if d == 0 {
-				break
-			}
-
-		case <-ctx.Done():
-			//	Reset all pixels:
-			sp.PixArray.SetAll(pixarray.Pixel{})
-			sp.PixArray.Write()
-
-			return nil
-		}
-	}
+	return sp.runEffect(ctx, rainbow)
 }
 
 // ProcessZipEffect processes the rainbow effect
@@ -363,8 +284,6 @@ func (sp StepProcessor) ProcessZipEffect(ctx context.Context, step data.Timeline
 		Any("color", meta.Color).
 		Msg("Processing effect: zip")
 
-	var d time.Duration
-
 	//	Use the time from the step, but default to 2 seconds if it's not set
 	zipDuration := int(step.Time.Int32)
 	if zipDuration == 0 {
@@ -378,27 +297,38 @@ func (sp StepProcessor) ProcessZipEffect(ctx context.Context, step data.Timeline
 		W: meta.Color.W,
 	})
 
-	zip.Start(sp.PixArray, time.Now())
+	return sp.runEffect(ctx, zip)
+}
 
-	//	Create a ticker to process work:
-	ticker := time.NewTicker(1 * time.Millisecond)
+// runEffect drives an effects.Effect using its suggested timing, ensures ticker cleanup,
+// and clears the strip on cancellation.
+func (sp StepProcessor) runEffect(ctx context.Context, eff effects.Effect) error {
+	eff.Start(sp.PixArray, time.Now())
+
+	const defaultTick = time.Millisecond
+	timer := time.NewTimer(defaultTick)
+	defer timer.Stop()
+
 	for {
 		select {
-		case <-ticker.C:
-			d = zip.NextStep(sp.PixArray, time.Now())
-			sp.PixArray.Write()
-
-			//	This is a weird way to signal this,
-			//	but a duration of 0 means the fade is 'done'
-			if d == 0 {
+		case <-timer.C:
+			next := eff.NextStep(sp.PixArray, time.Now())
+			if err := sp.PixArray.Write(); err != nil {
+				log.Err(err).Msg("Problem writing to strip")
+			}
+			if next <= 0 {
 				return nil
 			}
-
+			if !timer.Stop() {
+				select {
+				case <-timer.C:
+				default:
+				}
+			}
+			timer.Reset(next)
 		case <-ctx.Done():
-			//	Reset all pixels:
 			sp.PixArray.SetAll(pixarray.Pixel{})
 			sp.PixArray.Write()
-
 			return nil
 		}
 	}
