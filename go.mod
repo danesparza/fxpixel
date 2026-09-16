@@ -1,10 +1,10 @@
 module github.com/danesparza/fxpixel
 
-go 1.22.0
+go 1.23
 
 require (
 	github.com/edsrzf/mmap-go v1.0.0
-	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/hashicorp/go-version v1.7.0

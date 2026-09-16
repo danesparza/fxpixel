@@ -20,7 +20,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '>=1.22.x'
+          go-version: 'stable'
           check-latest: true
 
       - name: Get scanner tool
@@ -40,7 +40,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22.x'
+          go-version: 'stable'
 
       - name: Get dependencies
         run: go mod download
@@ -61,7 +61,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.22.x'
+          go-version: 'stable'
 
       - name: Get compiler tool
         run: go install github.com/mitchellh/gox@latest
@@ -85,7 +85,7 @@ jobs:
         run: mkdir -p "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/usr/bin"; cp "/tmp/binaries/fxpixel_linux_arm" "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/usr/bin/fxpixel"; cd /tmp/packagestage; dpkg-deb -Zxz --build "${DEBIAN_PACKAGE_NAME}"; mv *.deb "/tmp/binaries";
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Release binaries
           path: /tmp/binaries
@@ -99,7 +99,7 @@ jobs:
 
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Release binaries
           path: /tmp/binaries
