@@ -2,9 +2,9 @@ package leds
 
 import (
 	"context"
-	"github.com/Jon-Bright/ledctl/effects"
-	"github.com/Jon-Bright/ledctl/pixarray"
 	"github.com/danesparza/fxpixel/internal/data"
+	"github.com/danesparza/fxpixel/internal/ledctl/effects"
+	"github.com/danesparza/fxpixel/internal/ledctl/pixarray"
 	"github.com/rs/zerolog/log"
 	"math/rand"
 	"time"

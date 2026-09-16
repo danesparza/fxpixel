@@ -1,6 +1,6 @@
 package leds
 
-import "github.com/Jon-Bright/ledctl/pixarray"
+import "github.com/danesparza/fxpixel/internal/ledctl/pixarray"
 
 var gamma8 = [256]int{
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

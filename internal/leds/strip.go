@@ -1,7 +1,7 @@
 package leds
 
 import (
-	"github.com/Jon-Bright/ledctl/pixarray"
+	"github.com/danesparza/fxpixel/internal/ledctl/pixarray"
 	"strings"
 )
 

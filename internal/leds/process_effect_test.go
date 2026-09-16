@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Jon-Bright/ledctl/effects"
-	"github.com/Jon-Bright/ledctl/pixarray"
-	rpi "github.com/Jon-Bright/ledctl/rpi"
+	"github.com/danesparza/fxpixel/internal/ledctl/effects"
+	"github.com/danesparza/fxpixel/internal/ledctl/pixarray"
+	rpi "github.com/danesparza/fxpixel/internal/ledctl/rpi"
 )
 
 // stubStrip implements pixarray.LEDStrip without touching hardware.
