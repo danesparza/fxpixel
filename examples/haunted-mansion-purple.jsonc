@@ -1,5 +1,5 @@
 {
-  "name": "Haunted Mansion Glow",
+  "name": "Haunted Mansion Green",
   "steps": [
     {
       "type": "effect",
@@ -13,7 +13,7 @@
       "effect": "fade",
       "time": 3000,
       "meta-info": {
-        "color": { "R": 20, "G": 100, "B": 35, "W": 0 }
+        "color": { "R": 158, "G": 8, "B": 148, "W": 0 }
       }
     },
     {

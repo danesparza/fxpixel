@@ -124,8 +124,17 @@ func (sp StepProcessor) ProcessLightningEffect(ctx context.Context, step data.Ti
 		W: meta.BurstBrightness,
 	}
 
-	//	Create an 'off' pixel (since we need to flash)
-	loff := pixarray.Pixel{}
+	// Preserve every pixel so lightning can overlay an ambient color or pattern.
+	ambient := sp.PixArray.GetPixels()
+	// Cancellation still clears the strip, matching explicit timeline stops.
+	defer func() {
+		if ctx.Err() != nil {
+			sp.PixArray.SetAll(pixarray.Pixel{})
+			if err := sp.PixArray.Write(); err != nil {
+				log.Err(err).Msg("Problem clearing strip after lightning cancellation")
+			}
+		}
+	}()
 
 	//	Log the meta information we have:
 	log.Debug().
@@ -133,48 +142,39 @@ func (sp StepProcessor) ProcessLightningEffect(ctx context.Context, step data.Ti
 		Int32("steptime", step.Time.Int32).
 		Any("bursts", meta.Bursts).
 		Any("bursttype", meta.BurstType).
-		Any("bursttype", meta.BurstType).
 		Any("burstspacing", meta.BurstSpacing).
 		Any("burstlength", meta.BurstLength).
 		Any("burstbrightness", meta.BurstBrightness).
-		Msg("Processing effect: lightning")
+		Msg("Processing effect: lightning over ambient colors")
 
-	//	Cycle through our bursts
 	for b := 0; b < meta.Bursts; b++ {
+		if ctx.Err() != nil {
+			return nil
+		}
+		sp.PixArray.SetAll(ln)
+		if err := sp.PixArray.Write(); err != nil {
+			return err
+		}
 
 		select {
-		default:
-
-			//	Lightning flash
-			sp.PixArray.SetAll(ln)
-			sp.PixArray.Write()
-
-			select {
-			case <-time.After(time.Duration(meta.BurstLength) * time.Millisecond):
-				//	Flash over
-				sp.PixArray.SetAll(loff)
-				sp.PixArray.Write()
-
-				//	Add burst spacing
-				select {
-				case <-time.After(time.Duration(meta.BurstSpacing) * time.Millisecond):
-					continue
-				case <-ctx.Done():
-					return nil
-				}
-
-			case <-ctx.Done():
-				return nil
-			}
-
+		case <-time.After(time.Duration(meta.BurstLength) * time.Millisecond):
 		case <-ctx.Done():
-			//	Reset all pixels:
-			sp.PixArray.SetAll(pixarray.Pixel{})
-			sp.PixArray.Write()
-
 			return nil
 		}
 
+		// Restore the original pattern between flashes and after the last burst.
+		for i, pixel := range ambient {
+			sp.PixArray.SetOne(i, pixel)
+		}
+		if err := sp.PixArray.Write(); err != nil {
+			return err
+		}
+
+		select {
+		case <-time.After(time.Duration(meta.BurstSpacing) * time.Millisecond):
+		case <-ctx.Done():
+			return nil
+		}
 	}
 
 	return nil

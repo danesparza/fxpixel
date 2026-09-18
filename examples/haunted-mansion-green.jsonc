@@ -1,0 +1,32 @@
+{
+  "name": "Haunted Mansion Green",
+  "steps": [
+    {
+      "type": "effect",
+      "effect": "solid",
+      "meta-info": {
+        "color": { "R": 0, "G": 0, "B": 0, "W": 0 }
+      }
+    },
+    {
+      "type": "effect",
+      "effect": "fade",
+      "time": 3000,
+      "meta-info": {
+        "color": { "R": 74, "G": 150, "B": 12, "W": 0 }
+      }
+    },
+    {
+      "type": "sleep",
+      "time": 10000
+    },
+    {
+      "type": "effect",
+      "effect": "fade",
+      "time": 3000,
+      "meta-info": {
+        "color": { "R": 0, "G": 0, "B": 0, "W": 0 }
+      }
+    }
+  ]
+}
