@@ -49,6 +49,12 @@ type BackgroundProcess struct {
 
 	// PlayingTimelines tracks currently playing timelines
 	PlayingTimelines timelineProcessMap
+
+	// The strip outlives individual timelines so fades see the last displayed color.
+	stripMu     sync.Mutex
+	stripConfig data.SystemConfig
+	pixels      *pixarray.PixArray
+	newStrip    func(int, ...option) (pixarray.LEDStrip, error)
 }
 
 // HandleAndProcess handles system context calls and channel events to play/stop timelines
@@ -169,6 +175,9 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 	//	- value: the cancel function (pointer)
 	//	(critical section)
 	bp.PlayingTimelines.rwMutex.Lock()
+	if bp.PlayingTimelines.m == nil {
+		bp.PlayingTimelines.m = make(map[string]func())
+	}
 	bp.PlayingTimelines.m[req.ProcessID] = cancel
 	bp.PlayingTimelines.rwMutex.Unlock()
 
@@ -179,20 +188,11 @@ func (bp *BackgroundProcess) StartTimelinePlay(cx context.Context, req PlayTimel
 		return
 	}
 
-	//	Spin up a strip:
-	pixels, err := NewStrip( // Take the defaults for most things ...
-		systemConfig.LEDs,                               // Set the number of LEDs
-		WithGPIOPIn(systemConfig.GPIO),                  // Set the GPIO pin
-		WithPixelOrder(systemConfig.PixelOrder),         // Set the pixel order
-		WithNumberOfColors(systemConfig.NumberOfColors), // Set the number of colors
-	)
+	arr, err := bp.timelinePixels(systemConfig)
 	if err != nil {
-		log.Err(err).Msg("Problem creating strip")
+		log.Err(err).Msg("Problem preparing timeline strip")
 		return
 	}
-
-	//	Create a new pixel array
-	arr := pixarray.NewPixArray(systemConfig.LEDs, systemConfig.NumberOfColors, pixels)
 
 	//	Set the defaults for the StepProcessor:
 	sp := StepProcessor{

@@ -16,3 +16,11 @@ Install the package
 ```
 sudo apt install fxpixel
 ```
+
+### Timeline color continuity
+
+The LED strip is initialized once and reused across timelines. A fade at the
+start of a new timeline begins from the previous timeline's final pixel colors.
+Explicit stop requests still clear the LEDs. Restart fxpixel after changing
+hardware settings (GPIO, LED count, pixel order, or number of color channels).
+Concurrent timelines still share the same physical output; they are not queued.

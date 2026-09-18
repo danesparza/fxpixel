@@ -1,0 +1,32 @@
+{
+  "name": "Haunted Mansion Glow",
+  "steps": [
+    {
+      "type": "effect",
+      "effect": "solid",
+      "meta-info": {
+        "color": { "R": 0, "G": 0, "B": 0, "W": 0 }
+      }
+    },
+    {
+      "type": "effect",
+      "effect": "fade",
+      "time": 3000,
+      "meta-info": {
+        "color": { "R": 20, "G": 100, "B": 35, "W": 0 }
+      }
+    },
+    {
+      "type": "sleep",
+      "time": 10000
+    },
+    {
+      "type": "effect",
+      "effect": "fade",
+      "time": 3000,
+      "meta-info": {
+        "color": { "R": 0, "G": 0, "B": 0, "W": 0 }
+      }
+    }
+  ]
+}
