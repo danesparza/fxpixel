@@ -31,8 +31,12 @@ func Execute() {
 }
 
 func init() {
+	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/fxpixel.yaml)")
 
+}
+
+func initConfig() {
 	// Find home directory.
 	home, err := homedir.Dir()
 	if err != nil {
@@ -51,6 +55,9 @@ func init() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	//	Set our defaults
+	viper.SetDefault("discovery.enabled", true)
+	viper.SetDefault("discovery.name", "")
+	viper.SetDefault("discovery.id", "")
 	viper.SetDefault("datastore.system", path.Join(home, "fxpixel", "db", "fxpixel.db"))
 	viper.SetDefault("server.port", "3050")
 

@@ -3,3 +3,9 @@ server:
   allowed-origins: "*"
 datastore:
   system: /var/lib/fxpixel/db/fxpixel.db
+
+# Local network discovery for fxcontroller.
+discovery:
+  enabled: true
+  name: "" # Default: service-hostname-port; maximum 63 bytes
+  id: "" # Set a unique stable ID to retain identity across hostname/port changes
